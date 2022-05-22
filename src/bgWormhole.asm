@@ -26,16 +26,14 @@ _updateWormholeAnim::
     ld e, (20 * 18) / 2
 .updateLp:
     ld a, [hl]
-    inc a
-    cp a, NUM_ANIM_TILES
-    jr nz, :+
-    xor a
+    sub 1 ; can't use "dec" because we need to set carry
+    jr nc, :+
+    ld a, NUM_ANIM_TILES - 1
 :   ld [hli], a
     ld a, [hl] ; do twice per loop so the counter variable can fit in 8 bits
-    inc a
-    cp a, NUM_ANIM_TILES
-    jr nz, :+
-    xor a
+    sub 1
+    jr nc, :+
+    ld a, NUM_ANIM_TILES - 1
 :   ld [hli], a
     dec e
     jr nz, .updateLp
@@ -47,6 +45,10 @@ _cpyWormhole::
     ld de, _bgBuffer
     ld b, %11
     ld c, (20 * 18) / TILES_PER_LINE
+    ; Wait until we're not in HBlank
+:   ldh a, [rSTAT]
+    and b
+    jr z, :-
 .cpyLineLp:
     ; Wait for HBlank
 :   ldh a, [rSTAT]
