@@ -1,3 +1,4 @@
+; http://www.devrs.com/gb/asmcode.php#asmmath
 ;************************************************************
 ;* Fast 8x8 unsigned multiply using Log/Antilog tables v1.0 *
 ;************************************************************

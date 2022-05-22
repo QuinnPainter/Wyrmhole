@@ -46,7 +46,7 @@ void clearScreenWithBorder()
     }
 }
 
-// Draws a screen-width tilemap, and fills it with palette 0x7 on CGB
+// Draws a screen-width tilemap
 void drawTilemap(uint8_t* dstPtr, uint8_t* srcPtr, uint8_t* srcEnd, uint8_t tileOffset)
 {
     uint8_t x = 20;
