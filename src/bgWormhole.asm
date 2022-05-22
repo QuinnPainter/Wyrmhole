@@ -8,7 +8,7 @@ wAnimFrameCtr: DS 1
 SECTION "BG Wormhole Code", ROM0
 
 DEF NUM_ANIM_TILES EQU 12
-DEF WORMHOLE_ANIM_SPEED EQU 20 ; number of frames between animation updates
+DEF WORMHOLE_ANIM_SPEED EQU 15 ; number of frames between animation updates
 
 _initWormhole::
     ld a, 1
