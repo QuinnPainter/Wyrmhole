@@ -13,6 +13,7 @@
 #include "gameassets.h"
 #include "player.h"
 #include "bullet.h"
+#include "hUGEDriver.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -81,6 +82,8 @@ void main() {
     initPlayer();
     initFXEngine();
 
+    hUGE_init(MUSIC_INGAME);
+
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
     rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
@@ -111,4 +114,5 @@ void main() {
 ISR_VBLANK() {
     oam_dma_copy();
     updateFXEngine();
+    hUGE_dosound();
 }
