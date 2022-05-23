@@ -5,7 +5,8 @@
 #include "bullet.h"
 
 #define NUM_BULLETS 5
-#define BULLET_START_OAM_INDEX 40 - 5
+#define BULLET_START_OAM_INDEX (40 - 5)
+#define BULLET_TILEINDEX 0x20
 
 struct Bullet {
     bool active;
@@ -31,11 +32,14 @@ void updateBullets() {
 
         bulletArray[i].distance += bulletArray[i].speed;
         uint8_t distance = bulletArray[i].distance >> 8;
-        if (distance < 2 || distance > 253) { deleteBullet(i); continue; }
+        if (distance < 10 || distance > 253) { deleteBullet(i); continue; }
 
-        if (distance < 40) { shadow_oam[BULLET_START_OAM_INDEX + i].tile = 0x20 + 2; }
-        else if (distance < 90) { shadow_oam[BULLET_START_OAM_INDEX + i].tile = 0x20 + 1; }
-        else { shadow_oam[BULLET_START_OAM_INDEX + i].tile = 0x20 + 0; }
+        if (distance < 40)
+            { shadow_oam[BULLET_START_OAM_INDEX + i].tile = BULLET_TILEINDEX + 4; }
+        else if (distance < 90)
+            { shadow_oam[BULLET_START_OAM_INDEX + i].tile = BULLET_TILEINDEX + 2; }
+        else
+            { shadow_oam[BULLET_START_OAM_INDEX + i].tile = BULLET_TILEINDEX + 0; }
 
         uint8_t angle = bulletArray[i].angle;
         //-4 to compensate for fact sprite is 8x8, so -4 to base coordinates around the middle
