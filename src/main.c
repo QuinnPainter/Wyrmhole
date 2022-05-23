@@ -12,6 +12,7 @@
 #include "gbdecompress.h"
 #include "gameassets.h"
 #include "player.h"
+#include "bullet.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -64,6 +65,7 @@ void main() {
     lcd_off(); // Disable screen so we can copy to VRAM freely
 
     gb_decompress(playerTiles, (uint8_t*)0x8000);
+    gb_decompress(bulletTiles, (uint8_t*)0x8200);
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
 
     initWormhole();
@@ -75,6 +77,7 @@ void main() {
     // Setup the OAM for sprite drawing
     oam_init();
 
+    initBullets();
     initPlayer();
     initFXEngine();
 
@@ -99,6 +102,7 @@ void main() {
         cpyWormhole();
         joypad_update();
         updatePlayer();
+        updateBullets();
 
         HALT();
     }

@@ -3,10 +3,11 @@
 #include "sdk/hardware.h"
 #include "fastmult.h"
 #include "angles.h"
+#include "bullet.h"
 #include "player.h"
 
 uint8_t playerAngle = 0;
-uint8_t playerDist = 0; // Distance from center of circle.
+uint8_t playerDist = 155; // Distance from center of circle.
 
 const uint8_t tileTable[] = {
     18, 16, // bottom right quadrant
@@ -47,8 +48,12 @@ void updatePlayer() {
         playerAngle--;
     }
 
-    if ((joypad_state & PAD_UP) && playerDist < 255) { playerDist++; }
-    else if ((joypad_state & PAD_DOWN) && playerDist > 2) { playerDist--; }
+    //if ((joypad_state & PAD_UP) && playerDist < 255) { playerDist++; }
+    //else if ((joypad_state & PAD_DOWN) && playerDist > 2) { playerDist--; }
+
+    if (joypad_pressed & PAD_A) {
+        fireBullet(playerAngle, playerDist, -0x0300);
+    }
 
     //-8 to compensate for fact sprite is 16x16, so -8 to base coordinates around the middle
     uint8_t baseX = (fastmult_IbyU(CosTable[playerAngle], playerDist) >> 8) + MIDSCREEN_X_OFS - 8;
