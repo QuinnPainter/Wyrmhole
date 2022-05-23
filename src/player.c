@@ -65,10 +65,11 @@ void updatePlayer() {
     // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
     uint8_t rotState = ((playerAngle + 0x08) & 0xF0) >> 4;
     
-    shadow_oam[0].attr = attrTable[rotState >> 2];
-    shadow_oam[1].attr = attrTable[rotState >> 2];
-    shadow_oam[2].attr = attrTable[rotState >> 2];
-    shadow_oam[3].attr = attrTable[rotState >> 2];
+    uint8_t attrVal = attrTable[rotState >> 2];
+    shadow_oam[0].attr = attrVal;
+    shadow_oam[1].attr = attrVal;
+    shadow_oam[2].attr = attrVal;
+    shadow_oam[3].attr = attrVal;
 
     uint8_t tileTableBase = rotState * 4;
     shadow_oam[0].tile = tileTable[tileTableBase];
