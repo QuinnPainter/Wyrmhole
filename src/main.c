@@ -80,7 +80,7 @@ void main() {
 
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
-    rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800;
+    rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
     rWY = 0xFF; // hide window
     rWX = 7; // far left
     rSCX = 0;
