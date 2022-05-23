@@ -32,6 +32,12 @@ $(BUILD)/assets/%.gbcompress: assets/%.c.png tools/gbcompress/gbcompress
 	$(Q)rgbgfx $< -o $(BUILD)/assets/$*.2bpp
 	@./tools/gbcompress/gbcompress $(BUILD)/assets/$*.2bpp $@
 
+$(BUILD)/assets/%.gbcompress: assets/%.oam.c.png tools/gbcompress/gbcompress
+	@echo Converting $<
+	@mkdir -p $(dir $@)
+	$(Q)rgbgfx -h $< -o $(BUILD)/assets/$*.2bpp
+	@./tools/gbcompress/gbcompress $(BUILD)/assets/$*.2bpp $@
+
 # Add this new clean as a prerequisite for the GBSDK clean.
 clean: clean2
 clean2:

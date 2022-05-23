@@ -11,10 +11,7 @@
 #include "bgWormhole.h"
 #include "gbdecompress.h"
 #include "gameassets.h"
-
-// Offsets that when applied to a sprite position they change 0,0 to the middle of the screen.
-#define MIDSCREEN_X_OFS ((160 / 2) + OAM_X_OFS)
-#define MIDSCREEN_Y_OFS ((144 / 2) + OAM_Y_OFS)
+#include "player.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -63,9 +60,6 @@ uint8_t bgBuffer[] = {
 #undef A
 #undef B
 
-uint8_t playerAngle = 0;
-uint8_t playerDist = 0; // Distance from center of circle.
-
 void main() {
     lcd_off(); // Disable screen so we can copy to VRAM freely
 
@@ -81,12 +75,7 @@ void main() {
     // Setup the OAM for sprite drawing
     oam_init();
 
-    // Setup player sprite
-    shadow_oam[0].y = 0;
-    shadow_oam[0].x = 0;
-    shadow_oam[0].tile = 1;
-    shadow_oam[0].attr = 0x00;
-
+    initPlayer();
     initFXEngine();
 
     // Make sure sprites and the background are drawn (also turns the screen on)
@@ -109,18 +98,7 @@ void main() {
         updateWormholeAnim();
         cpyWormhole();
         joypad_update();
-        if (joypad_state & PAD_RIGHT) {
-            playerAngle++;
-        }
-        else if (joypad_state & PAD_LEFT) {
-            playerAngle--;
-        }
-
-        if ((joypad_state & PAD_UP) && playerDist < 255) { playerDist++; }
-        else if ((joypad_state & PAD_DOWN) && playerDist > 2) { playerDist--; }
-        // -4 to compensate for fact object is 8x8 and position represents the top left corner
-        shadow_oam[0].x = (fastmult_IbyU(CosTable[playerAngle], playerDist) >> 8) + MIDSCREEN_X_OFS - 4;
-        shadow_oam[0].y = (fastmult_IbyU(SinTable[playerAngle], playerDist) >> 8) + MIDSCREEN_Y_OFS - 4;
+        updatePlayer();
 
         HALT();
     }

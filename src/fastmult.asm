@@ -23,7 +23,7 @@ SECTION "Fastmult", ROM0
 ; BC = A * E
 _fastmult::
     ld l, e
-    ld h, 2
+    ld h, HIGH(STARTOF("Log Table"))
     ld e, [hl]          ; e = 32 * log_2(e)
 
     ld l, a
@@ -40,7 +40,7 @@ _fastmult::
 
     ld c, [hl]
     inc hl
-    ld b,[hl]          ; bc = 2^([hl]/32)
+    ld b, [hl]          ; bc = 2^([hl]/32)
     ret
 
 _fastmult_IbyU::
@@ -49,19 +49,17 @@ _fastmult_IbyU::
     cpl
     inc a ; convert to positive
     call _fastmult
-    ld a, b ; convert output back to negative
-    cpl 
-    ld b, a
-    ld a, c
+    ld a, c ; convert output back to negative
     cpl
+    add 1
     ld c, a
-    ld hl, 1
-    add hl, bc
-    ld b, h
-    ld c, l
+    ld a, b
+    cpl
+    adc 0
+    ld b, a
     ret
 
-SECTION "Log Table", ROM0[$200]
+SECTION "Log Table", ROM0, ALIGN[8]
 
 ; 32*Log_2(x) Table
 ;

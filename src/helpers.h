@@ -8,6 +8,10 @@
 #define BGB_BREAKPOINT() __asm__("ld b, b") // opcode used as breakpoint in BGB
 #define CRASH_POINT() __asm__(" .db #0xDD") // invalid opcode, will lock up the system
 
+// Offsets that when applied to a sprite position they change 0,0 to the middle of the screen.
+#define MIDSCREEN_X_OFS ((160 / 2) + OAM_X_OFS)
+#define MIDSCREEN_Y_OFS ((144 / 2) + OAM_Y_OFS)
+
 // returns the 2's complement negative version of a number.
 // since SDCC is stupid, adding a NEGATEd number is (sometimes) more efficient than subtracting.
 #define NEGATE(x) ((~x)+1)

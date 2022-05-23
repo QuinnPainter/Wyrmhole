@@ -8,7 +8,7 @@ REPT NUM_DIRECTIONS
 VAL = MUL(SIN(ANGLE), MULTIPLIER) ; 16.16 fixed point number
     ;db (VAL >> 16) & $FF ; save integer part
     db (VAL >> 8) & $FF ; save fractional part
-ANGLE = ANGLE + ((65536 / (NUM_DIRECTIONS / 2)) << 16) ; left shift to convert to fixed point
+ANGLE = ANGLE + ((65536 / NUM_DIRECTIONS) << 16) ; left shift to convert to fixed point
 ENDR
 
 _CosTable::
@@ -17,5 +17,5 @@ REPT NUM_DIRECTIONS
 VAL = MUL(COS(ANGLE), MULTIPLIER) ; 16.16 fixed point number
     ;db (VAL >> 16) & $FF ; save integer part
     db (VAL >> 8) & $FF ; save fractional part
-ANGLE = ANGLE + ((65536 / (NUM_DIRECTIONS / 2)) << 16) ; left shift to convert to fixed point
+ANGLE = ANGLE + ((65536 / NUM_DIRECTIONS) << 16) ; left shift to convert to fixed point
 ENDR
