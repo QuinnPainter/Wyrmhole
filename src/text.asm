@@ -73,40 +73,21 @@ _drawBCD16:: ; dst address in DE, num to draw in BC
 
     ld a, b
     and $F0
-    jr nz, .firstChar
-    ld a, " "
-    ld [hli], a
-    ld a, b
-    and $0F
-    jr nz, .secondChar
-    ld a, " "
-    ld [hli], a
-
-    ld a, c
-    and $F0
-    jr nz, .thirdChar
-    ld a, " "
-    ld [hli], a
-    jr .fourthChar
-
-.firstChar:
-    ld a, b
-    and $F0
     swap a
     add "0"
     ld [hli], a
-.secondChar:
+
     ld a, b
     and $0F
     add "0"
     ld [hli], a
-.thirdChar:
+
     ld a, c
     and $F0
     swap a
     add "0"
     ld [hli], a
-.fourthChar:
+
     ld a, c
     and $0F
     add "0"

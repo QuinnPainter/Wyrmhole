@@ -90,18 +90,17 @@ void main() {
     initEnemies();
     initFXEngine();
 
+    addScore(0); // draw score
+
     //hUGE_init(MUSIC_INGAME);
 
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
     rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
-    rWY = 0xFF; // hide window
-    rWX = 7; // far left
+    rWY = 144 - 8;
+    rWX = 160 - 24;
     rSCX = 0;
     rSCY = 0;
-
-    rWY = 144 - 16;
-    rWX = 160 - 32;
 
     // Setup the VBLANK interrupt.
     rIF = 0;
