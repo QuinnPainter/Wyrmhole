@@ -66,7 +66,7 @@ void updateEnemies() {
 
         uint8_t colData = objCollisionCheck(COLLISION_INDEX_ENEMIES + i, OBJTYPE_PLAYERBULLET);
         if (colData != 0xFF) {
-            addScore(0x0100);
+            addScore(0x0005);
             deleteBullet(colData);
             deleteEnemy(i);
             continue;

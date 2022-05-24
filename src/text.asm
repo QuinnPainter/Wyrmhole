@@ -113,3 +113,16 @@ LCDMemcpyFast:
 
 SECTION "PausedString", ROM0
 _PausedString:: DB "PAUSED", 0
+
+SECTION "GameOverString", ROM0
+_GameOverString:: DB "      GAME OVER", 0
+
+SECTION "ScoreString", ROM0
+_ScoreString:: DB "SCORE", 0
+
+SECTION "HighScoreString", ROM0
+_HighScoreString:: DB "BEST", 0
+
+SECTION "RetryString", ROM0
+_RetryString:: DB  "  PRESS START", 0
+_Retry2String:: DB "          TO RETRY", 0

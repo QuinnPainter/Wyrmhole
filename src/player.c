@@ -1,16 +1,29 @@
 #include "sdk/joypad.h"
 #include "sdk/oam.h"
 #include "sdk/hardware.h"
+#include "sdk/interrupt.h"
+#include "sdk/video.h"
 #include "fastmult.h"
 #include "angles.h"
 #include "bullet.h"
 #include "player.h"
 #include "collision.h"
+#include "text.h"
+#include "score.h"
+
+enum PlayerStates {
+    STATE_ALIVE = 0,
+    STATE_DYING
+};
 
 #define PLAYER_SPEED 0x0200
+#define DEATH_DELAY 120 // Delay after dying before the game over screen shows, in frames.
 
 uint16_t playerAngle = 0; // 8.8 fixed
 uint8_t playerDist = 160; // Distance from center of circle.
+
+uint8_t playerState = STATE_ALIVE;
+uint8_t stateTimer;
 
 const uint8_t tileTable[] = {
     18, 16, // bottom right quadrant
@@ -44,34 +57,72 @@ void initPlayer() {
 }
 
 void updatePlayer() {
-    if (joypad_state & PAD_RIGHT) {
-        playerAngle += PLAYER_SPEED;
+    if (playerState == STATE_ALIVE) {
+        if (joypad_state & PAD_RIGHT) {
+            playerAngle += PLAYER_SPEED;
+        }
+        else if (joypad_state & PAD_LEFT) {
+            playerAngle -= PLAYER_SPEED;
+        }
+
+        if (joypad_pressed & PAD_A) {
+            fireBullet(playerAngle >> 8, playerDist, -0x0300);
+        }
+
+        //-8 to compensate for fact sprite is 16x16, so -8 to base coordinates around the middle
+        uint8_t baseX = (fastmult_IbyU(CosTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_X_OFS - 8;
+        uint8_t baseY = (fastmult_IbyU(SinTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_Y_OFS - 8;
+        shadow_oam[0].y = baseY;
+        shadow_oam[0].x = baseX;
+        shadow_oam[1].y = baseY;
+        shadow_oam[1].x = baseX + 8;
+
+        // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
+        uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
+
+        uint8_t attrVal = attrTable[rotState >> 2];
+        shadow_oam[0].attr = attrVal;
+        shadow_oam[1].attr = attrVal;
+
+        uint8_t tileTableBase = rotState << 1;
+        shadow_oam[0].tile = tileTable[tileTableBase];
+        shadow_oam[1].tile = tileTable[tileTableBase + 1];
+
+        collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_PLAYER;
+        collisionArray[COLLISION_INDEX_PLAYER].yTop = baseY - 5;
+        collisionArray[COLLISION_INDEX_PLAYER].yBottom = baseY + 5;
+        collisionArray[COLLISION_INDEX_PLAYER].xLeft = baseX - 5;
+        collisionArray[COLLISION_INDEX_PLAYER].xRight = baseX + 5;
+        collisionArray[COLLISION_INDEX_PLAYER].info = 0;
+
+        uint8_t colData = objCollisionCheck(COLLISION_INDEX_PLAYER, OBJTYPE_ENEMY);
+        if (colData != 0xFF) {
+            stateTimer = DEATH_DELAY;
+            playerState = STATE_DYING;
+        }
+    } else {
+        stateTimer--;
+        if (stateTimer == 0) {
+            rWX = 7;
+            rWY = 144 - (8 * 9);
+            rLCDC = rLCDC & ~LCDC_OBJON; // disable sprites
+            uint16_t vAddr = 0x9C00;
+            vram_memset(0x9C00, 0, 32 * 9); // clear window area
+            copyStringVRAM(GameOverString, (uint8_t*)0x9C20);
+            copyStringVRAM(ScoreString, (uint8_t*)0x9C61);
+            drawBCD16((uint8_t*)0x9C6E, score);
+            copyStringVRAM(HighScoreString, (uint8_t*)0x9C81);
+            drawBCD16((uint8_t*)0x9C8E, highScore);
+            copyStringVRAM(RetryString, (uint8_t*)0x9CC0);
+            copyStringVRAM(Retry2String, (uint8_t*)0x9CE0);
+            while (1) {
+                joypad_update();
+                if (joypad_pressed & PAD_START) {
+                    // restart game
+                }
+                HALT();
+            }
+        }
     }
-    else if (joypad_state & PAD_LEFT) {
-        playerAngle -= PLAYER_SPEED;
-    }
-
-    if (joypad_pressed & PAD_A) {
-        fireBullet(playerAngle >> 8, playerDist, -0x0300);
-    }
-
-    //-8 to compensate for fact sprite is 16x16, so -8 to base coordinates around the middle
-    uint8_t baseX = (fastmult_IbyU(CosTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_X_OFS - 8;
-    uint8_t baseY = (fastmult_IbyU(SinTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_Y_OFS - 8;
-    shadow_oam[0].y = baseY;
-    shadow_oam[0].x = baseX;
-    shadow_oam[1].y = baseY;
-    shadow_oam[1].x = baseX + 8;
-
-    // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
-    uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
-    
-    uint8_t attrVal = attrTable[rotState >> 2];
-    shadow_oam[0].attr = attrVal;
-    shadow_oam[1].attr = attrVal;
-
-    uint8_t tileTableBase = rotState << 1;
-    shadow_oam[0].tile = tileTable[tileTableBase];
-    shadow_oam[1].tile = tileTable[tileTableBase + 1];
 }
 
