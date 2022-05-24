@@ -12,3 +12,6 @@ _bulletTiles_end::
 _enemyTiles::
     INCBIN "_build/assets/enemy.gbcompress"
 _enemyTiles_end::
+_fontTiles::
+    INCBIN "_build/assets/font.gbcompress"
+_fontTiles_end::

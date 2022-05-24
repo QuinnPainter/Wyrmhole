@@ -16,6 +16,8 @@
 #include "hUGEDriver.h"
 #include "enemy.h"
 #include "collision.h"
+#include "text.h"
+#include "score.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -71,6 +73,7 @@ void main() {
     gb_decompress(bulletTiles, (uint8_t*)0x8200);
     gb_decompress(enemyTiles, (uint8_t*)0x8300);
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
+    gb_decompress(fontTiles, (uint8_t*)0x9200);
 
     initWormhole();
     initCollision();
@@ -96,6 +99,9 @@ void main() {
     rWX = 7; // far left
     rSCX = 0;
     rSCY = 0;
+
+    rWY = 144 - 16;
+    rWX = 160 - 32;
 
     // Setup the VBLANK interrupt.
     rIF = 0;

@@ -5,6 +5,7 @@
 #include "enemy.h"
 #include "collision.h"
 #include "bullet.h"
+#include "score.h"
 
 #define NUM_ENEMIES 5
 #define ENEMY_START_OAM_INDEX 2
@@ -65,6 +66,7 @@ void updateEnemies() {
 
         uint8_t colData = objCollisionCheck(COLLISION_INDEX_ENEMIES + i, OBJTYPE_PLAYERBULLET);
         if (colData != 0xFF) {
+            addScore(0x0100);
             deleteBullet(colData);
             deleteEnemy(i);
             continue;
