@@ -15,6 +15,7 @@
 #include "bullet.h"
 #include "hUGEDriver.h"
 #include "enemy.h"
+#include "collision.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -72,6 +73,7 @@ void main() {
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
 
     initWormhole();
+    initCollision();
 
     rBGP = 0b11100100;
     rOBP0 = 0b11100100;

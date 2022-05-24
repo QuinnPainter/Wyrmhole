@@ -3,6 +3,7 @@
 #include "fastmult.h"
 #include "angles.h"
 #include "bullet.h"
+#include "collision.h"
 
 #define NUM_BULLETS 5
 #define BULLET_START_OAM_INDEX (40 - 5)
@@ -46,6 +47,13 @@ void updateBullets() {
         uint8_t baseY = (fastmult_IbyU(SinTable[angle], distance) >> 8) + MIDSCREEN_Y_OFS - 4;
         shadow_oam[BULLET_START_OAM_INDEX + i].y = baseY;
         shadow_oam[BULLET_START_OAM_INDEX + i].x = baseX;
+
+        collisionArray[COLLISION_INDEX_BULLETS + i].objType = OBJTYPE_PLAYERBULLET;
+        collisionArray[COLLISION_INDEX_BULLETS + i].yTop = baseY - 1;
+        collisionArray[COLLISION_INDEX_BULLETS + i].yBottom = baseY + 1;
+        collisionArray[COLLISION_INDEX_BULLETS + i].xLeft = baseX - 1;
+        collisionArray[COLLISION_INDEX_BULLETS + i].xRight = baseX + 1;
+        collisionArray[COLLISION_INDEX_BULLETS + i].info = i;
     }
 }
 
@@ -66,4 +74,5 @@ void fireBullet(uint8_t angle, uint8_t distance, uint16_t speed) {
 void deleteBullet(uint8_t i) {
     bulletArray[i].active = false;
     shadow_oam[BULLET_START_OAM_INDEX + i].y = 0;
+    collisionArray[COLLISION_INDEX_BULLETS + i].objType = OBJTYPE_DISABLED;
 }

@@ -3,6 +3,8 @@
 #include "fastmult.h"
 #include "angles.h"
 #include "enemy.h"
+#include "collision.h"
+#include "bullet.h"
 
 #define NUM_ENEMIES 5
 #define ENEMY_START_OAM_INDEX 2
@@ -53,6 +55,20 @@ void updateEnemies() {
         shadow_oam[oamIndex1].x = baseX;
         shadow_oam[oamIndex1 + 1].y = baseY;
         shadow_oam[oamIndex1 + 1].x = baseX + 8;
+
+        collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_ENEMY;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].yTop = baseY - 8;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].yBottom = baseY + 8;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].xLeft = baseX - 8;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].xRight = baseX + 8;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].info = i;
+
+        uint8_t colData = objCollisionCheck(COLLISION_INDEX_ENEMIES + i, OBJTYPE_PLAYERBULLET);
+        if (colData != 0xFF) {
+            deleteBullet(colData);
+            deleteEnemy(i);
+            continue;
+        }
     }
 }
 
@@ -72,4 +88,5 @@ void deleteEnemy(uint8_t i) {
     enemyArray[i].active = false;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2) + 1].y = 0;
+    collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_DISABLED;
 }

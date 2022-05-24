@@ -5,6 +5,7 @@
 #include "angles.h"
 #include "bullet.h"
 #include "player.h"
+#include "collision.h"
 
 #define PLAYER_SPEED 0x0200
 
@@ -35,11 +36,11 @@ const uint8_t attrTable[] = {
 };
 
 void initPlayer() {
-    // Setup player sprite
-    shadow_oam[0].y = 0;
+    // Setup player sprite (not needed)
+    /*shadow_oam[0].y = 0;
     shadow_oam[0].x = 0;
     shadow_oam[0].tile = 1;
-    shadow_oam[0].attr = 0x00;
+    shadow_oam[0].attr = 0x00;*/
 }
 
 void updatePlayer() {
