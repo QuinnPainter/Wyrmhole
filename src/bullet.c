@@ -21,7 +21,6 @@ void initBullets() {
     for (uint8_t i = 0; i < NUM_BULLETS; i++) {
         bulletArray[i].active = false;
         shadow_oam[BULLET_START_OAM_INDEX + i].y = 0;
-        shadow_oam[BULLET_START_OAM_INDEX + i].tile = 0x20;
         shadow_oam[BULLET_START_OAM_INDEX + i].attr = 0;
     }
 }

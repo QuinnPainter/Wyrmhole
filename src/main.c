@@ -14,6 +14,7 @@
 #include "player.h"
 #include "bullet.h"
 #include "hUGEDriver.h"
+#include "enemy.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -67,6 +68,7 @@ void main() {
 
     gb_decompress(playerTiles, (uint8_t*)0x8000);
     gb_decompress(bulletTiles, (uint8_t*)0x8200);
+    gb_decompress(enemyTiles, (uint8_t*)0x8300);
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
 
     initWormhole();
@@ -80,9 +82,10 @@ void main() {
 
     initBullets();
     initPlayer();
+    initEnemies();
     initFXEngine();
 
-    hUGE_init(MUSIC_INGAME);
+    //hUGE_init(MUSIC_INGAME);
 
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
@@ -106,6 +109,7 @@ void main() {
         joypad_update();
         updatePlayer();
         updateBullets();
+        updateEnemies();
 
         HALT();
     }
@@ -114,5 +118,5 @@ void main() {
 ISR_VBLANK() {
     oam_dma_copy();
     updateFXEngine();
-    hUGE_dosound();
+    //hUGE_dosound();
 }

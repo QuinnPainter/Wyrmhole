@@ -6,8 +6,10 @@
 #include "bullet.h"
 #include "player.h"
 
-uint8_t playerAngle = 0;
-uint8_t playerDist = 155; // Distance from center of circle.
+#define PLAYER_SPEED 0x0200
+
+uint16_t playerAngle = 0; // 8.8 fixed
+uint8_t playerDist = 160; // Distance from center of circle.
 
 const uint8_t tileTable[] = {
     18, 16, // bottom right quadrant
@@ -42,29 +44,26 @@ void initPlayer() {
 
 void updatePlayer() {
     if (joypad_state & PAD_RIGHT) {
-        playerAngle++;
+        playerAngle += PLAYER_SPEED;
     }
     else if (joypad_state & PAD_LEFT) {
-        playerAngle--;
+        playerAngle -= PLAYER_SPEED;
     }
 
-    //if ((joypad_state & PAD_UP) && playerDist < 255) { playerDist++; }
-    //else if ((joypad_state & PAD_DOWN) && playerDist > 2) { playerDist--; }
-
     if (joypad_pressed & PAD_A) {
-        fireBullet(playerAngle, playerDist, -0x0300);
+        fireBullet(playerAngle >> 8, playerDist, -0x0300);
     }
 
     //-8 to compensate for fact sprite is 16x16, so -8 to base coordinates around the middle
-    uint8_t baseX = (fastmult_IbyU(CosTable[playerAngle], playerDist) >> 8) + MIDSCREEN_X_OFS - 8;
-    uint8_t baseY = (fastmult_IbyU(SinTable[playerAngle], playerDist) >> 8) + MIDSCREEN_Y_OFS - 8;
+    uint8_t baseX = (fastmult_IbyU(CosTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_X_OFS - 8;
+    uint8_t baseY = (fastmult_IbyU(SinTable[playerAngle >> 8], playerDist) >> 8) + MIDSCREEN_Y_OFS - 8;
     shadow_oam[0].y = baseY;
     shadow_oam[0].x = baseX;
     shadow_oam[1].y = baseY;
     shadow_oam[1].x = baseX + 8;
 
     // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
-    uint8_t rotState = ((playerAngle + 0x08) & 0xF0) >> 4;
+    uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
     
     uint8_t attrVal = attrTable[rotState >> 2];
     shadow_oam[0].attr = attrVal;

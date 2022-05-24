@@ -9,3 +9,6 @@ _playerTiles_end::
 _bulletTiles::
     INCBIN "_build/assets/bullet.gbcompress"
 _bulletTiles_end::
+_enemyTiles::
+    INCBIN "_build/assets/enemy.gbcompress"
+_enemyTiles_end::
