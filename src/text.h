@@ -10,6 +10,6 @@ void copyStringVRAM(const uint8_t* src, uint8_t* dst);
 // Draws a BCD number
 void drawBCD16(uint8_t* dst, bcd16 input);
 
-extern const uint8_t PlayString[];
+extern const uint8_t PausedString[];
 
 #endif//TEXT_H

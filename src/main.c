@@ -66,6 +66,10 @@ uint8_t bgBuffer[] = {
 #undef A
 #undef B
 
+#define WINDOW_X_SCORE (160 - 24)
+#define WINDOW_Y_SCORE (144 - 8)
+#define WINDOW_X_PAUSED (160 - (24 + (8 * 7)))
+
 void main() {
     lcd_off(); // Disable screen so we can copy to VRAM freely
 
@@ -90,6 +94,7 @@ void main() {
     initEnemies();
     initFXEngine();
 
+    copyStringVRAM(PausedString, (uint8_t*)0x9C05);
     addScore(0); // draw score
 
     //hUGE_init(MUSIC_INGAME);
@@ -97,8 +102,8 @@ void main() {
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
     rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
-    rWY = 144 - 8;
-    rWX = 160 - 24;
+    rWY = WINDOW_X_SCORE;
+    rWX = WINDOW_Y_SCORE;
     rSCX = 0;
     rSCY = 0;
 
@@ -115,11 +120,13 @@ void main() {
         cpyWormhole();
         joypad_update();
         if (joypad_pressed & PAD_START) {
+            rWX = WINDOW_X_PAUSED;
             while (1) {
                 HALT();
                 joypad_update();
                 if (joypad_pressed & PAD_START) { break; }
             }
+            rWX = WINDOW_X_SCORE;
         }
         updatePlayer();
         updateBullets();

@@ -41,12 +41,6 @@ CHARMAP "!", "Z" + 1
 CHARMAP ".", "!" + 1
 CHARMAP " ", $10 ; Empty space
 
-MACRO wait_vram
-:   ldh a, [rSTAT]
-    and a, STATF_BUSY
-    jr nz, :-
-ENDM
-
 SECTION "TextBufferHRAM", HRAM
 Scratchpad: DS 4
 
@@ -117,5 +111,5 @@ LCDMemcpyFast:
     ret
 
 
-SECTION "PlayString", ROM0
-_PlayString:: DB "PLAY", 0
+SECTION "PausedString", ROM0
+_PausedString:: DB "PAUSED", 0
