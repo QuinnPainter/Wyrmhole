@@ -114,6 +114,13 @@ void main() {
         updateWormholeAnim();
         cpyWormhole();
         joypad_update();
+        if (joypad_pressed & PAD_START) {
+            while (1) {
+                HALT();
+                joypad_update();
+                if (joypad_pressed & PAD_START) { break; }
+            }
+        }
         updatePlayer();
         updateBullets();
         updateEnemies();
