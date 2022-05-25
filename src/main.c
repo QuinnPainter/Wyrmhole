@@ -138,6 +138,11 @@ void main() {
         updateBullets();
         updateEnemies();
 
+        // cap instead of overflowing, so game stays at hardest difficulty
+        if (gameTime != 0xFFFF) {
+            gameTime++;
+        }
+
         HALT();
     }
 }

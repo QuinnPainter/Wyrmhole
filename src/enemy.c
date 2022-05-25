@@ -17,9 +17,14 @@
 #define EB_DRIFTSPEED 0x0030
 #define EB_DRIFTTIME 250 // number of frames it spends drifting before going away
 
+#define ES_STRAIGHTSPEED 0x0050
+#define ES_SIDESPEED 0x00F0
+#define ES_DRIFTSPEED 0x0060
+
 enum EnemyTypes {
     ETYPE_INACTIVE = 0,
     ETYPE_BASIC,
+    ETYPE_SPIRAL,
 };
 
 struct Enemy {
@@ -44,7 +49,7 @@ void initEnemies() {
 
 void updateEnemies() {
     if (genRandom() < 255) {
-        spawnEnemy();
+        spawnEnemy(ETYPE_SPIRAL);
     }
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
@@ -74,6 +79,39 @@ DONEDRIFT:
                         enemyArray[i].distance += EB_STRAIGHTSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
                             deleteEnemy(i);
+                            continue;
+                        }
+                        break;
+                }
+                break;
+            case ETYPE_SPIRAL:
+                switch (enemyArray[i].aistate & 0x7F) {
+                    case 0: // Moving to edge
+                        enemyArray[i].distance += ES_STRAIGHTSPEED;
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= ES_SIDESPEED; }
+                        else
+                            { enemyArray[i].angle += ES_SIDESPEED; }
+                        if ((uint8_t)(enemyArray[i].distance >> 8) > EB_TARGETDIST) {
+                            enemyArray[i].aistate |= 1;
+                            enemyArray[i].timer = EB_DRIFTTIME;
+                        }
+                        break;
+                    case 1: // Drifting
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= ES_DRIFTSPEED; }
+                        else
+                            { enemyArray[i].angle += ES_DRIFTSPEED; }
+                        enemyArray[i].timer--;
+                        if (enemyArray[i].timer == 0) {
+                            enemyArray[i].aistate = 2; // move to next state
+                        }
+                        break;
+                    case 2: // moving offscreen
+                        enemyArray[i].distance += ES_STRAIGHTSPEED;
+                        if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
+                            deleteEnemy(i);
+                            continue;
                         }
                         break;
                 }
@@ -86,7 +124,7 @@ DONEDRIFT:
             { tileOffset = 0; }
         else if (distance < 90)
             { tileOffset = 4; }
-        tileOffset += (enemyArray[i].type - 1) * 3;
+        tileOffset += (enemyArray[i].type - 1) * 12;
 
         uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
         shadow_oam[oamIndex1].tile = ENEMY_TILEINDEX + tileOffset;
@@ -118,17 +156,21 @@ DONEDRIFT:
     }
 }
 
-void spawnEnemy() {
+void spawnEnemy(uint8_t type) {
     uint16_t randNum = genRandom();
+    uint8_t aistate = 0;
+    if (type == ETYPE_SPIRAL) { // choose random direction for spiralling enemies
+        aistate |= (uint8_t)randNum & 0x80;
+    }
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         if (enemyArray[i].type == ETYPE_INACTIVE) {
-            enemyArray[i].type = ETYPE_BASIC;
-            enemyArray[i].aistate = 0;
+            enemyArray[i].type = type;
+            enemyArray[i].aistate = aistate;
             enemyArray[i].angle = randNum;
             enemyArray[i].distance = 0;
             return;
         }
-    } 
+    }
 }
 
 void deleteEnemy(uint8_t i) {

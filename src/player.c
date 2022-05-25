@@ -123,10 +123,10 @@ void updatePlayer() {
             shadow_oam[1].tile = tileTable[tileTableBase + 1];
 
             collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_PLAYER;
-            collisionArray[COLLISION_INDEX_PLAYER].yTop = baseY - 5;
-            collisionArray[COLLISION_INDEX_PLAYER].yBottom = baseY + 5;
-            collisionArray[COLLISION_INDEX_PLAYER].xLeft = baseX - 5;
-            collisionArray[COLLISION_INDEX_PLAYER].xRight = baseX + 5;
+            collisionArray[COLLISION_INDEX_PLAYER].yTop = baseY - 4;
+            collisionArray[COLLISION_INDEX_PLAYER].yBottom = baseY + 4;
+            collisionArray[COLLISION_INDEX_PLAYER].xLeft = baseX - 4;
+            collisionArray[COLLISION_INDEX_PLAYER].xRight = baseX + 4;
             collisionArray[COLLISION_INDEX_PLAYER].info = 0;
 
             uint8_t colData = objCollisionCheck(COLLISION_INDEX_PLAYER, OBJTYPE_ENEMY);

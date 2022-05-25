@@ -5,7 +5,7 @@
 
 void initEnemies();
 void updateEnemies();
-void spawnEnemy();
+void spawnEnemy(uint8_t type);
 void deleteEnemy(uint8_t i);
 
 #endif

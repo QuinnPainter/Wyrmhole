@@ -3,6 +3,7 @@
 
 bcd16 score = 0;
 bcd16 highScore = 0;
+uint16_t gameTime = 0; // Number of frames elapsed since the start of a "round". Used for difficulty scaling.
 
 void addScore(bcd16 val) {
     addBCD16(&score, val);
