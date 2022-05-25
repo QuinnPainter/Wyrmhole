@@ -7,7 +7,6 @@ wAnimFrameCtr: DS 1
 
 SECTION "BG Wormhole Code", ROM0
 
-DEF NUM_ANIM_TILES EQU 12
 DEF WORMHOLE_ANIM_SPEED EQU 15 ; number of frames between animation updates
 
 _initWormhole::
@@ -23,20 +22,13 @@ _updateWormholeAnim::
     ld [hl], a
 
     ld hl, _bgBuffer
-    ld e, (20 * 18) / 2
-.updateLp:
+    ld b, $F
+REPT (20 * 18)
     ld a, [hl]
-    sub 1 ; can't use "dec" because we need to set carry
-    jr nc, :+
-    ld a, NUM_ANIM_TILES - 1
-:   ld [hli], a
-    ld a, [hl] ; do twice per loop so the counter variable can fit in 8 bits
-    sub 1
-    jr nc, :+
-    ld a, NUM_ANIM_TILES - 1
-:   ld [hli], a
-    dec e
-    jr nz, .updateLp
+    dec a
+    and b
+    ld [hli], a
+ENDR
     ret
 
 _cpyWormhole::
