@@ -13,14 +13,19 @@
 
 enum PlayerStates {
     STATE_ALIVE = 0,
-    STATE_DYING
+    STATE_TELEPORTING1,
+    STATE_TELEPORTING2,
+    STATE_DYING,
 };
 
 #define PLAYER_SPEED 0x0200
+#define TELEPORT_SPEED 0x13
 #define DEATH_DELAY 120 // Delay after dying before the game over screen shows, in frames.
+#define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
+#define TP_TILEINDEX 0x14 // start tile index of teleport tiles
 
 uint16_t playerAngle = 0; // 8.8 fixed
-uint8_t playerDist = 160; // Distance from center of circle.
+uint8_t playerDist = NORMAL_DISTANCE; // Distance from center of circle.
 
 uint8_t playerState = STATE_ALIVE;
 uint8_t stateTimer;
@@ -57,16 +62,44 @@ void initPlayer() {
 }
 
 void updatePlayer() {
-    if (playerState == STATE_ALIVE) {
-        if (joypad_state & PAD_RIGHT) {
-            playerAngle += PLAYER_SPEED;
-        }
-        else if (joypad_state & PAD_LEFT) {
-            playerAngle -= PLAYER_SPEED;
-        }
+    if (playerState < STATE_DYING) { // Alive, tp1 or tp2
+        if (playerState == STATE_ALIVE) {
+            if (joypad_state & PAD_RIGHT) {
+                playerAngle += PLAYER_SPEED;
+            } else if (joypad_state & PAD_LEFT) {
+                playerAngle -= PLAYER_SPEED;
+            }
 
-        if (joypad_pressed & PAD_A) {
-            fireBullet(playerAngle >> 8, playerDist, -0x0300);
+            if (joypad_pressed & PAD_A) {
+                fireBullet(playerAngle >> 8, playerDist, -0x0300);
+            } else if (joypad_pressed & PAD_B) {
+                playerState = STATE_TELEPORTING1; // initiate teleport
+                // set tiles
+                // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
+                uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
+                uint8_t attrVal = attrTable[rotState >> 2];
+                shadow_oam[0].attr = attrVal;
+                shadow_oam[1].attr = attrVal;
+                uint8_t tileTableBase = rotState << 1;
+                shadow_oam[0].tile = TP_TILEINDEX + tileTable[tileTableBase];
+                shadow_oam[1].tile = TP_TILEINDEX + tileTable[tileTableBase + 1];
+                // disable collision
+                collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_DISABLED;
+            }
+        } else if (playerState == STATE_TELEPORTING1) {
+            uint8_t oldDist = playerDist;
+            playerDist -= TELEPORT_SPEED;
+            if (playerDist > oldDist) { // check for underflow
+                playerDist = 0;
+                playerAngle += (128 << 8); // add 180 degrees
+                playerState = STATE_TELEPORTING2;
+            }
+        } else if (playerState == STATE_TELEPORTING2) {
+            playerDist += TELEPORT_SPEED;
+            if (playerDist > NORMAL_DISTANCE) {
+                playerDist = NORMAL_DISTANCE;
+                playerState = STATE_ALIVE;
+            }
         }
 
         //-8 to compensate for fact sprite is 16x16, so -8 to base coordinates around the middle
@@ -77,30 +110,32 @@ void updatePlayer() {
         shadow_oam[1].y = baseY;
         shadow_oam[1].x = baseX + 8;
 
-        // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
-        uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
+        if (playerState == STATE_ALIVE) {
+            // + 0x08 to offset by a half-step, so the top, bottom, left, right states are "flat"
+            uint8_t rotState = (((playerAngle >> 8) + 0x08) & 0xF0) >> 4;
 
-        uint8_t attrVal = attrTable[rotState >> 2];
-        shadow_oam[0].attr = attrVal;
-        shadow_oam[1].attr = attrVal;
+            uint8_t attrVal = attrTable[rotState >> 2];
+            shadow_oam[0].attr = attrVal;
+            shadow_oam[1].attr = attrVal;
 
-        uint8_t tileTableBase = rotState << 1;
-        shadow_oam[0].tile = tileTable[tileTableBase];
-        shadow_oam[1].tile = tileTable[tileTableBase + 1];
+            uint8_t tileTableBase = rotState << 1;
+            shadow_oam[0].tile = tileTable[tileTableBase];
+            shadow_oam[1].tile = tileTable[tileTableBase + 1];
 
-        collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_PLAYER;
-        collisionArray[COLLISION_INDEX_PLAYER].yTop = baseY - 5;
-        collisionArray[COLLISION_INDEX_PLAYER].yBottom = baseY + 5;
-        collisionArray[COLLISION_INDEX_PLAYER].xLeft = baseX - 5;
-        collisionArray[COLLISION_INDEX_PLAYER].xRight = baseX + 5;
-        collisionArray[COLLISION_INDEX_PLAYER].info = 0;
+            collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_PLAYER;
+            collisionArray[COLLISION_INDEX_PLAYER].yTop = baseY - 5;
+            collisionArray[COLLISION_INDEX_PLAYER].yBottom = baseY + 5;
+            collisionArray[COLLISION_INDEX_PLAYER].xLeft = baseX - 5;
+            collisionArray[COLLISION_INDEX_PLAYER].xRight = baseX + 5;
+            collisionArray[COLLISION_INDEX_PLAYER].info = 0;
 
-        uint8_t colData = objCollisionCheck(COLLISION_INDEX_PLAYER, OBJTYPE_ENEMY);
-        if (colData != 0xFF) {
-            stateTimer = DEATH_DELAY;
-            playerState = STATE_DYING;
+            uint8_t colData = objCollisionCheck(COLLISION_INDEX_PLAYER, OBJTYPE_ENEMY);
+            if (colData != 0xFF) {
+                stateTimer = DEATH_DELAY;
+                playerState = STATE_DYING;
+            }
         }
-    } else {
+    } else if (playerState == STATE_DYING) {
         stateTimer--;
         if (stateTimer == 0) {
             rWX = 7;
@@ -123,6 +158,6 @@ void updatePlayer() {
                 HALT();
             }
         }
-    }
+    } 
 }
 

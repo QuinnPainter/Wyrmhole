@@ -18,6 +18,7 @@
 #include "collision.h"
 #include "text.h"
 #include "score.h"
+#include "random.h"
 
 // "diamond" style
 /*uint8_t bgBuffer[] = {
@@ -74,8 +75,8 @@ void main() {
     lcd_off(); // Disable screen so we can copy to VRAM freely
 
     gb_decompress(playerTiles, (uint8_t*)0x8000);
-    gb_decompress(bulletTiles, (uint8_t*)0x8200);
     gb_decompress(enemyTiles, (uint8_t*)0x8300);
+    gb_decompress(bulletTiles, (uint8_t*)0x8A00);
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
     gb_decompress(fontTiles, (uint8_t*)0x9200);
 
@@ -114,6 +115,9 @@ void main() {
 
     // Init joypad state
     joypad_state = 0;
+
+    // todo - seeding
+    randState = 0x1337;
 
     while(1) {
         updateWormholeAnim();

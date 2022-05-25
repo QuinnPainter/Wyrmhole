@@ -8,14 +8,14 @@ SECTION "RandomCode", ROM0
 ; Make sure it isn't 0!
 
 ; Generate a pseudorandom number between 1 and FFFF
-; Sets - HL = pseudorandom number
+; Sets - HL and BC = pseudorandom number
 ; Sets - A to L (lower byte of random number)
 ; http://www.retroprogramming.com/2017/07/xorshift-pseudorandom-numbers-in-z80.html
-genRandom::
+_genRandom::
     ld hl, wRandState
     ld a, [hli]
-    ld l, [hl]
-    ld h, a
+    ld h, [hl]
+    ld l, a
     rra
     ld a, l
     rra
@@ -29,7 +29,9 @@ genRandom::
     ld l, a
     xor h
     ld h, a
-    ld [wRandState], a
-    ld a, l
     ld [wRandState + 1], a
+    ld a, l
+    ld [wRandState], a
+    ld b, h
+    ld c, l
     ret

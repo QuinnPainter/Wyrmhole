@@ -11,18 +11,25 @@
 #define ENEMY_START_OAM_INDEX 2
 #define ENEMY_TILEINDEX 0x30
 
+#define EB_STRAIGHTSPEED 0x0100 // Basic enemy moving toward the edge
+#define EB_TARGETDIST 160
+
+enum EnemyTypes {
+    ETYPE_INACTIVE = 0,
+    ETYPE_BASIC,
+};
+
 struct Enemy {
-    bool active;
+    uint8_t type;
     uint8_t angle;
     uint16_t distance; // 8.8 fixed point
-    uint16_t speed;
 };
 
 struct Enemy enemyArray[NUM_ENEMIES];
 
 void initEnemies() {
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
-        enemyArray[i].active = false;
+        enemyArray[i].type = ETYPE_INACTIVE;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].attr = 0;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2) + 1].y = 0;
@@ -33,16 +40,24 @@ void initEnemies() {
 
 void updateEnemies() {
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
-        if (enemyArray[i].active == false) { continue; }
+        switch (enemyArray[i].type) { // Process AI
+            case ETYPE_INACTIVE: continue;
+            case ETYPE_BASIC: // Moves straight to the edge, sticks around there for a while, then leaves
+                if ((enemyArray[i].distance >> 8) < EB_TARGETDIST) {
+                    enemyArray[i].distance += EB_STRAIGHTSPEED;
+                } else {
+                    // todo
+                }
+                break;
+        }
 
-        enemyArray[i].distance += enemyArray[i].speed;
         uint8_t distance = enemyArray[i].distance >> 8;
-
         uint8_t tileOffset = 8;
         if (distance < 40)
             { tileOffset = 0; }
         else if (distance < 90)
             { tileOffset = 4; }
+        tileOffset += (enemyArray[i].type - 1) * 3;
 
         uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
         shadow_oam[oamIndex1].tile = ENEMY_TILEINDEX + tileOffset;
@@ -76,18 +91,17 @@ void updateEnemies() {
 
 void spawnEnemy() {
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
-        if (enemyArray[i].active == false) {
-            enemyArray[i].active = true;
+        if (enemyArray[i].type == ETYPE_INACTIVE) {
+            enemyArray[i].type = ETYPE_BASIC;
             enemyArray[i].angle = 0;
             enemyArray[i].distance = 0;
-            enemyArray[i].speed = 0x0100;
             return;
         }
     } 
 }
 
 void deleteEnemy(uint8_t i) {
-    enemyArray[i].active = false;
+    enemyArray[i].type = ETYPE_INACTIVE;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2) + 1].y = 0;
     collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_DISABLED;

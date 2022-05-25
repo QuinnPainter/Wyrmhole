@@ -7,7 +7,7 @@
 
 #define NUM_BULLETS 5
 #define BULLET_START_OAM_INDEX (40 - 5)
-#define BULLET_TILEINDEX 0x20
+#define BULLET_TILEINDEX 0xA0
 
 struct Bullet {
     bool active;
@@ -32,7 +32,7 @@ void updateBullets() {
 
         bulletArray[i].distance += bulletArray[i].speed;
         uint8_t distance = bulletArray[i].distance >> 8;
-        if (distance < 10 || distance > 253) { deleteBullet(i); continue; }
+        if (distance < 25 || distance > 253) { deleteBullet(i); continue; }
 
         if (distance < 40)
             { shadow_oam[BULLET_START_OAM_INDEX + i].tile = BULLET_TILEINDEX + 4; }

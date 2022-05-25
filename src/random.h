@@ -1,10 +1,10 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-#include "helpers.h"
+#include "stdint.h"
 
-// this probably isn't treated right in C since the value is stored big-endian
-// doesn't matter in this game, though
 extern uint16_t randState;
+
+uint16_t genRandom() __preserves_regs(d, e);
 
 #endif
