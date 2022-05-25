@@ -9,7 +9,7 @@
 SECTION "ObjCollisionArray", WRAM0, ALIGN[8]
 _collisionArray::
 ObjCollisionArray:
-    DS 6 * 11 ; 6 bytes * 11 collision objects.
+    DS 6 * 14 ; 6 bytes * 14 collision objects.
 ObjCollisionArrayEnd:
 
 SECTION "CollisionHRAM", HRAM

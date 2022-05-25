@@ -13,8 +13,8 @@ struct collisionArrayEntry {
 };
 
 #define COLLISION_INDEX_PLAYER 0
-#define COLLISION_INDEX_ENEMIES 1 // 5 enemy slots
-#define COLLISION_INDEX_BULLETS 6 // 5 bullet slots
+#define COLLISION_INDEX_ENEMIES 1 // 8 enemy slots
+#define COLLISION_INDEX_BULLETS 9 // 5 bullet slots
 
 enum CollisionObjTypes {
     OBJTYPE_DISABLED = 0,

@@ -80,6 +80,9 @@ void main() {
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
     gb_decompress(fontTiles, (uint8_t*)0x9200);
 
+    // todo - seeding
+    randState = 0x1337;
+
     initWormhole();
     initCollision();
 
@@ -115,9 +118,6 @@ void main() {
 
     // Init joypad state
     joypad_state = 0;
-
-    // todo - seeding
-    randState = 0x1337;
 
     while(1) {
         updateWormholeAnim();
