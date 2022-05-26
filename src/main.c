@@ -111,7 +111,7 @@ void main() {
     rWY = WINDOW_X_SCORE;
     rWX = WINDOW_Y_SCORE;
     rSCX = 0;
-    rSCY = 0;
+    rSCY = 8 * 14;
 
     // Setup the VBLANK interrupt.
     rIF = 0;
