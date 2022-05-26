@@ -12,6 +12,8 @@
 #define ENEMY_START_OAM_INDEX 2
 #define ENEMY_TILEINDEX 0x30
 
+#define EO_SPEED 0x0100
+
 #define EB_STRAIGHTSPEED 0x00A0 // Basic enemy moving toward the edge
 #define EB_TARGETDIST 160
 #define EB_DRIFTSPEED 0x0030
@@ -21,8 +23,11 @@
 #define ES_SIDESPEED 0x00F0
 #define ES_DRIFTSPEED 0x0060
 
+#define OFFSCREENSPEED 0x0100 // speed of enemy moving offscreen
+
 enum EnemyTypes {
     ETYPE_INACTIVE = 0,
+    ETYPE_OBSTACLE,
     ETYPE_BASIC,
     ETYPE_SPIRAL,
 };
@@ -56,13 +61,22 @@ void updateEnemies() {
         if (rand2 < curDifficulty.spiralEnemyChance) {
             spawnEnemy(ETYPE_SPIRAL);
         } else {
-            spawnEnemy(ETYPE_BASIC);
+            spawnEnemy(ETYPE_OBSTACLE);
         }
     }
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         switch (enemyArray[i].type) { // Process AI
             case ETYPE_INACTIVE: continue;
+            case ETYPE_OBSTACLE: { // Inanimate object that goes straight and nothing else.
+                uint8_t oldDist = (uint8_t)(enemyArray[i].distance >> 8);
+                enemyArray[i].distance += EO_SPEED;
+                if ((uint8_t)(enemyArray[i].distance >> 8) < oldDist) { // check for overflow
+                    deleteEnemy(i);
+                    continue;
+                }
+                break;
+            }
             case ETYPE_BASIC: // Moves straight to the edge, sticks around there for a while, then leaves
                 switch (enemyArray[i].aistate) {
                     case 0: // Moving to edge
@@ -84,7 +98,7 @@ DONEDRIFT:
                         }
                         break;
                     case 3: // moving offscreen
-                        enemyArray[i].distance += EB_STRAIGHTSPEED;
+                        enemyArray[i].distance += OFFSCREENSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
                             deleteEnemy(i);
                             continue;
@@ -116,7 +130,7 @@ DONEDRIFT:
                         }
                         break;
                     case 2: // moving offscreen
-                        enemyArray[i].distance += ES_STRAIGHTSPEED;
+                        enemyArray[i].distance += OFFSCREENSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
                             deleteEnemy(i);
                             continue;
@@ -156,10 +170,12 @@ DONEDRIFT:
 
         uint8_t colData = objCollisionCheck(COLLISION_INDEX_ENEMIES + i, OBJTYPE_PLAYERBULLET);
         if (colData != 0xFF) {
-            addScore(0x0005);
             deleteBullet(colData);
-            deleteEnemy(i);
-            continue;
+            if (enemyArray[i].type != ETYPE_OBSTACLE) {
+                addScore(0x0005);
+                deleteEnemy(i);
+                continue;
+            }
         }
     }
 }

@@ -91,7 +91,7 @@ _drawBCD16:: ; dst address in DE, num to draw in BC
     ld l, e
     ld de, Scratchpad
     ld c, 4
-    jr LCDMemcpyFast
+    ;jr LCDMemcpyFast
 
 ; Copy data into VRAM, while making sure VRAM is accesible.
 ; Input - HL = Destination address
