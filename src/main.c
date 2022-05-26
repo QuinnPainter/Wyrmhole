@@ -123,7 +123,6 @@ void main() {
 
     while(1) {
         updateWormholeAnim();
-        cpyWormhole();
         joypad_update();
         if (joypad_pressed & PAD_START) {
             rWX = WINDOW_X_PAUSED;
@@ -144,6 +143,7 @@ void main() {
 
 ISR_VBLANK() {
     oam_dma_copy();
+    cpyWormhole();
     hUGE_dosound();
     CBTFX_update();
 }

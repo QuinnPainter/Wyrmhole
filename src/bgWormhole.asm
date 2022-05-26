@@ -79,15 +79,7 @@ _cpyWormhole::
     ld b, %11
     ld c, CHUNKS_PER_FRAME
     di
-    ; Wait until we're not in HBlank
-:   ldh a, [rSTAT]
-    and b
-    jr z, :-
 .cpyLineLp:
-    ; Wait for HBlank
-:   ldh a, [rSTAT]
-    and b
-    jr nz, :-
 REPT TILES_PER_LINE
     ld a, [de] ;c2 b1
     ld [hli], a ; c2 b1
