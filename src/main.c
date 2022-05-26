@@ -98,6 +98,7 @@ void main() {
     initBullets();
     initPlayer();
     initEnemies();
+    initProgression();
     initFXEngine();
 
     copyStringVRAM(PausedString, (uint8_t*)0x9C05);

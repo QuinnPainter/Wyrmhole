@@ -51,9 +51,9 @@ void initEnemies() {
 void updateEnemies() {
     spawnTimer--;
     if (spawnTimer == 0) {
-        spawnTimer = (genRandom() & spawnTimeVariance) + minTimeBetweenSpawns;
+        spawnTimer = (genRandom() & curDifficulty.spawnTimeVariance) + curDifficulty.minTimeBetweenSpawns;
         uint16_t rand2 = genRandom();
-        if (rand2 < spiralEnemyChance) {
+        if (rand2 < curDifficulty.spiralEnemyChance) {
             spawnEnemy(ETYPE_SPIRAL);
         } else {
             spawnEnemy(ETYPE_BASIC);
