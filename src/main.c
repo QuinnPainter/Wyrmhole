@@ -17,7 +17,7 @@
 #include "enemy.h"
 #include "collision.h"
 #include "text.h"
-#include "score.h"
+#include "gamemanager.h"
 #include "random.h"
 
 // "diamond" style
@@ -137,12 +137,7 @@ void main() {
         updatePlayer();
         updateBullets();
         updateEnemies();
-
-        // cap instead of overflowing, so game stays at hardest difficulty
-        if (gameTime != 0xFFFF) {
-            gameTime++;
-        }
-
+        updateProgression();
         HALT();
     }
 }

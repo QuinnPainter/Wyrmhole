@@ -5,7 +5,7 @@
 #include "enemy.h"
 #include "collision.h"
 #include "bullet.h"
-#include "score.h"
+#include "gamemanager.h"
 #include "random.h"
 
 #define NUM_ENEMIES 8
@@ -36,6 +36,7 @@ struct Enemy {
 };
 
 struct Enemy enemyArray[NUM_ENEMIES];
+uint16_t spawnTimer = 60;
 
 void initEnemies() {
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
@@ -48,8 +49,15 @@ void initEnemies() {
 }
 
 void updateEnemies() {
-    if (genRandom() < 255) {
-        spawnEnemy(ETYPE_SPIRAL);
+    spawnTimer--;
+    if (spawnTimer == 0) {
+        spawnTimer = (genRandom() & spawnTimeVariance) + minTimeBetweenSpawns;
+        uint16_t rand2 = genRandom();
+        if (rand2 < spiralEnemyChance) {
+            spawnEnemy(ETYPE_SPIRAL);
+        } else {
+            spawnEnemy(ETYPE_BASIC);
+        }
     }
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {

@@ -9,7 +9,7 @@
 #include "player.h"
 #include "collision.h"
 #include "text.h"
-#include "score.h"
+#include "gamemanager.h"
 
 enum PlayerStates {
     STATE_ALIVE = 0,

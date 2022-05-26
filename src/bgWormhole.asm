@@ -63,17 +63,3 @@ ENDR
     jr nz, .cpyLineLp
     ei
     ret
-
-; Copies a block of data with max size 256
-; Input - HL = Destination address
-; Input - DE = Start address
-; Input - C = Data length
-; Sets	- C to 0
-; Sets	- A H L D E to garbage
-memcpyFast::
-	ld a, [de] ; c2 b1
-	ld [hli], a ; c2 b1
-	inc de ; c2 b1
-	dec c ; c1 b1
-	jr nz, memcpyFast ; c3/2 b2
-	ret ; total = 10 cycles per byte
