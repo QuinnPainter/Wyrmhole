@@ -13,6 +13,7 @@
 #include "player.h"
 #include "bullet.h"
 #include "hUGEDriver.h"
+#include "cbtfx.h"
 #include "enemy.h"
 #include "collision.h"
 #include "text.h"
@@ -102,7 +103,7 @@ void main() {
     copyStringVRAM(PausedString, (uint8_t*)0x9C05);
     addScore(0); // draw score
 
-    //hUGE_init(MUSIC_INGAME);
+    hUGE_init(MUSIC_INGAME);
 
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
@@ -143,5 +144,6 @@ void main() {
 
 ISR_VBLANK() {
     oam_dma_copy();
-    //hUGE_dosound();
+    hUGE_dosound();
+    CBTFX_update();
 }

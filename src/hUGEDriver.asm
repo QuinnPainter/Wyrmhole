@@ -1679,9 +1679,6 @@ ENDC
 note_table:
 include "hUGE_note_table.inc"
 
-
-IF DEF(GBDK)
-
 SECTION "hUGEDriver GBDK wrappers", ROM0
 
 _hUGE_init_banked::
@@ -1724,5 +1721,3 @@ continue_set_position:
     call hUGE_set_position
     pop  bc
     ret
-
-ENDC
