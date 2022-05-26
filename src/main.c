@@ -4,7 +4,6 @@
 #include "sdk/system.h"
 #include "sdk/joypad.h"
 #include "sdk/hardware.h"
-#include "fxengine.h"
 #include "helpers.h"
 #include "angles.h"
 #include "fastmult.h"
@@ -99,7 +98,6 @@ void main() {
     initPlayer();
     initEnemies();
     initProgression();
-    initFXEngine();
 
     copyStringVRAM(PausedString, (uint8_t*)0x9C05);
     addScore(0); // draw score
@@ -145,6 +143,5 @@ void main() {
 
 ISR_VBLANK() {
     oam_dma_copy();
-    updateFXEngine();
     //hUGE_dosound();
 }
