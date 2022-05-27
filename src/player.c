@@ -10,6 +10,7 @@
 #include "collision.h"
 #include "text.h"
 #include "gamemanager.h"
+#include "main.h"
 
 enum PlayerStates {
     STATE_ALIVE = 0,
@@ -24,10 +25,9 @@ enum PlayerStates {
 #define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
 #define TP_TILEINDEX 0x14 // start tile index of teleport tiles
 
-uint16_t playerAngle = 0; // 8.8 fixed
-uint8_t playerDist = NORMAL_DISTANCE; // Distance from center of circle.
-
-uint8_t playerState = STATE_ALIVE;
+uint16_t playerAngle; // 8.8 fixed
+uint8_t playerDist; // Distance from center of circle.
+uint8_t playerState;
 uint8_t stateTimer;
 
 const uint8_t tileTable[] = {
@@ -54,11 +54,9 @@ const uint8_t attrTable[] = {
 };
 
 void initPlayer() {
-    // Setup player sprite (not needed)
-    /*shadow_oam[0].y = 0;
-    shadow_oam[0].x = 0;
-    shadow_oam[0].tile = 1;
-    shadow_oam[0].attr = 0x00;*/
+    playerAngle = 0x03F00; // start at the bottom
+    playerDist = NORMAL_DISTANCE;
+    playerState = STATE_ALIVE;
 }
 
 void updatePlayer() {
@@ -153,7 +151,15 @@ void updatePlayer() {
             while (1) {
                 joypad_update();
                 if (joypad_pressed & PAD_START) {
-                    // restart game
+                    startGame();
+                    // sdcc seems bugged and generates only one "inc sp" then "ret"
+                    // if I just put a normal "return;" statement here.
+                    // this leaves the stack in the wrong place and crashes the game.
+                    // this bodge seems to fix it. why is sdcc so garbage???
+                    __asm__("inc sp");
+                    __asm__("inc sp");
+                    __asm__("inc sp");
+                    __asm__("ret");
                 }
                 HALT();
             }

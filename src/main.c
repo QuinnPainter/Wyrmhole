@@ -19,29 +19,8 @@
 #include "text.h"
 #include "gamemanager.h"
 #include "random.h"
+#include "main.h"
 
-// "diamond" style
-/*uint8_t bgBuffer[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 9, 8, 7, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 9, 8, 7, 6, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0,
-    0, 0, 0, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0,
-    0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0,
-    0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
-    9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
-    0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0,
-    0, 0, 0, 9, 8, 7, 6, 5, 4, 3, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0,
-    0, 0, 0, 0, 9, 8, 7, 6, 5, 4, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 9, 8, 7, 6, 5, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 9, 8, 7, 6, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 9, 8, 7, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0
-};*/
-// "circle" style
 #define A 10
 #define B 11
 #define C 12
@@ -73,6 +52,22 @@ uint8_t bgBuffer[] = {
 #define WINDOW_Y_SCORE (144 - 8)
 #define WINDOW_X_PAUSED (160 - (24 + (8 * 7)))
 
+void startGame() {
+    initCollision();
+    initBullets();
+    initPlayer();
+    updatePlayer(); // put player sprite in the right spot
+    initEnemies();
+    initProgression();
+    HALT(); // wait for vblank / sprite DMA to happen, so there's no "glitch" when we enable sprites
+    // because the sprite changes from the init functions won't be in obj ram yet until vblank
+    rLCDC = rLCDC | LCDC_OBJON; // enable sprites
+    rWY = WINDOW_X_SCORE;
+    rWX = WINDOW_Y_SCORE;
+    copyStringVRAM(PausedString, (uint8_t*)0x9C05);
+    addScore(0); // draw score
+}
+
 void main() {
     lcd_off(); // Disable screen so we can copy to VRAM freely
 
@@ -85,8 +80,9 @@ void main() {
     // todo - seeding
     randState = 0x1337;
 
+    joypad_state = joypad_pressed = 0;
+
     initWormhole();
-    initCollision();
 
     rBGP = 0b11100100;
     rOBP0 = 0b11100100;
@@ -95,21 +91,15 @@ void main() {
     // Setup the OAM for sprite drawing
     oam_init();
 
-    initBullets();
-    initPlayer();
-    initEnemies();
-    initProgression();
-
-    copyStringVRAM(PausedString, (uint8_t*)0x9C05);
-    addScore(0); // draw score
-
+    // Init sound registers
+    rAUDENA = 0xFF; // Turn on sound controller
+    rAUDTERM = 0xFF; // Enable all channels
+    rAUDVOL = 0x77; // Set master volume to max
     hUGE_init(MUSIC_INGAME);
 
     // Make sure sprites and the background are drawn (also turns the screen on)
     // Also sets up the window for the in game menus
     rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
-    rWY = WINDOW_X_SCORE;
-    rWX = WINDOW_Y_SCORE;
     rSCX = 0;
     rSCY = 8 * 14;
 
@@ -118,8 +108,7 @@ void main() {
     rIE = IE_VBLANK;
     ENABLE_INTERRUPTS();
 
-    // Init joypad state
-    joypad_state = 0;
+    startGame();
 
     while(1) {
         updateWormholeAnim();
@@ -133,10 +122,10 @@ void main() {
             }
             rWX = WINDOW_X_SCORE;
         }
-        updatePlayer();
         updateBullets();
         updateEnemies();
         updateProgression();
+        updatePlayer();
         HALT();
     }
 }

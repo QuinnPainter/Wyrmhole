@@ -1,13 +1,13 @@
 #include "text.h"
 #include "gamemanager.h"
 
-bcd16 score = 0;
+bcd16 score;
 bcd16 highScore = 0;
-uint16_t gameTime = 0; // Number of frames elapsed since the start of a "round". Used for difficulty scaling.
+uint16_t gameTime; // Number of frames elapsed since the start of a "round". Used for difficulty scaling.
+uint8_t curStage;
 
 struct difficulty curDifficulty;
 
-uint8_t curStage = 0;
 struct difficulty difficultyTable[] = {
     { .minTimeBetweenSpawns = 10,
     .spawnTimeVariance = 0x0000,
@@ -30,7 +30,10 @@ void addScore(bcd16 val) {
 }
 
 void initProgression() {
+    score = 0;
+    curStage = 0;
     curDifficulty = difficultyTable[0];
+    gameTime = 0;
 }
 
 void updateProgression() {

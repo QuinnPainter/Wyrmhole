@@ -41,9 +41,10 @@ struct Enemy {
 };
 
 struct Enemy enemyArray[NUM_ENEMIES];
-uint16_t spawnTimer = 60;
+uint16_t spawnTimer;
 
 void initEnemies() {
+    spawnTimer = 60;
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         enemyArray[i].type = ETYPE_INACTIVE;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
