@@ -20,7 +20,7 @@ enum PlayerStates {
 };
 
 #define PLAYER_SPEED 0x0200
-#define TELEPORT_SPEED 0x13
+#define TELEPORT_SPEED 0x1C
 #define DEATH_DELAY 120 // Delay after dying before the game over screen shows, in frames.
 #define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
 #define TP_TILEINDEX 0x14 // start tile index of teleport tiles
