@@ -7,7 +7,7 @@
 
 #define NUM_BULLETS 5
 #define BULLET_START_OAM_INDEX (40 - 5)
-#define BULLET_TILEINDEX 0xA0
+#define BULLET_TILEINDEX 0x70
 
 struct Bullet {
     bool active;

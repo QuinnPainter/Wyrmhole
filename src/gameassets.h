@@ -9,4 +9,11 @@ EXTERN_ASSET(bulletTiles);
 EXTERN_ASSET(enemyTiles);
 EXTERN_ASSET(fontTiles);
 
+EXTERN_ASSET(titleTiles);
+EXTERN_ASSET(titleTilemap);
+EXTERN_ASSET(titleTiles2);
+EXTERN_ASSET(titleTilemap2);
+EXTERN_ASSET(titleTiles3);
+EXTERN_ASSET(titleTilemap3);
+
 #endif

@@ -1,7 +1,7 @@
 include "sdk/hardware.inc"
 
 NEWCHARMAP MainCharmap
-CHARMAP "0", $20
+CHARMAP "0", $10
 CHARMAP "1", "0" + 1
 CHARMAP "2", "1" + 1
 CHARMAP "3", "2" + 1
@@ -39,7 +39,7 @@ CHARMAP "Y", "X" + 1
 CHARMAP "Z", "Y" + 1
 CHARMAP "!", "Z" + 1
 CHARMAP ".", "!" + 1
-CHARMAP " ", $10 ; Empty space
+CHARMAP " ", "." + 1 ; Empty space
 
 SECTION "TextBufferHRAM", HRAM
 Scratchpad: DS 4

@@ -11,7 +11,7 @@
  * @param targetPos 8 bit value
  * @param speed 8 bit value. Increasing this makes the slide slower.
  */
-void smoothSlide(uint16_t* srcCoord, uint8_t targetPos, uint8_t speed)
+/*void smoothSlide(uint16_t* srcCoord, uint8_t targetPos, uint8_t speed)
 {
     // int16_t is so the number is sign-extended during the ">> speed"
     // - 0x7F is so it aims for the "middle subpixel", helping it move into the right position
@@ -44,7 +44,7 @@ void clearScreenWithBorder()
         vram_set(i, 0x10); // 0x10 = grid tile
         vram_set(i + 0x13, 0x10);
     }
-}
+}*/
 
 // Draws a screen-width tilemap
 void drawTilemap(uint8_t* dstPtr, uint8_t* srcPtr, uint8_t* srcEnd, uint8_t tileOffset)

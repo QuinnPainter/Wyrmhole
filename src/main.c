@@ -51,6 +51,16 @@ uint8_t bgBuffer[] = {
 #define WINDOW_X_SCORE (160 - 24)
 #define WINDOW_Y_SCORE (144 - 8)
 #define WINDOW_X_PAUSED (160 - (24 + (8 * 7)))
+#define WINDOW_Y_PRESSSTART (144 - (8 * 3))
+#define PRESS_START_FLASH_SPEED 40
+#define PRESS_START_FAST_FLASH_SPEED 10
+#define PRESS_START_FLASH_TIME 100 // number of frames spent flashing before moving to the game
+
+bool playMusic = false;
+uint8_t pressStartFlashState = true;
+uint8_t pressStartFlashCtr = PRESS_START_FLASH_SPEED;
+uint8_t menuStartPressed = false;
+uint8_t menuStateCtr;
 
 void startGame() {
     initCollision();
@@ -73,12 +83,16 @@ void main() {
 
     gb_decompress(playerTiles, (uint8_t*)0x8000);
     gb_decompress(enemyTiles, (uint8_t*)0x8300);
-    gb_decompress(bulletTiles, (uint8_t*)0x8A00);
+    gb_decompress(bulletTiles, (uint8_t*)0x8700);
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
-    gb_decompress(fontTiles, (uint8_t*)0x9200);
+    gb_decompress(fontTiles, (uint8_t*)0x9100);
+    gb_decompress(titleTiles, (uint8_t*)0x8800);
+    gb_decompress(titleTiles2, (uint8_t*)0x9370);
+    gb_decompress(titleTiles3, (uint8_t*)0x8F10);
 
-    // todo - seeding
-    randState = 0x1337;
+    drawTilemap((uint8_t*)0x99C0, titleTilemap, titleTilemap_end, 0x80);
+    drawTilemap((uint8_t*)0x9AE0, titleTilemap2, titleTilemap2_end, 0x37);
+    drawTilemap((uint8_t*)0x9C00, titleTilemap3, titleTilemap3_end, 0xF1);
 
     joypad_state = joypad_pressed = 0;
 
@@ -102,12 +116,38 @@ void main() {
     rLCDC = LCDC_ON | LCDC_OBJON | LCDC_BGON | LCDC_WIN9C00 | LCDC_WINON | LCDC_BG8800 | LCDC_OBJ16;
     rSCX = 0;
     rSCY = 8 * 14;
+    rWX = 7 + 4;
+    rWY = WINDOW_Y_PRESSSTART;
 
     // Setup the VBLANK interrupt.
     rIF = 0;
     rIE = IE_VBLANK;
     ENABLE_INTERRUPTS();
 
+    while (1) { // Initial splash screen loop
+        pressStartFlashCtr--;
+        if (pressStartFlashCtr == 0) {
+            pressStartFlashState = !pressStartFlashState;
+            pressStartFlashCtr = menuStartPressed ? PRESS_START_FAST_FLASH_SPEED : PRESS_START_FLASH_SPEED;
+        }
+        rWY = pressStartFlashState ? WINDOW_Y_PRESSSTART : 200;
+        if (menuStartPressed) {
+            menuStateCtr--;
+            if (menuStateCtr == 0) { break; }
+        } else {
+            joypad_update();
+            if (joypad_pressed & PAD_START) {
+                menuStateCtr = PRESS_START_FLASH_TIME;
+                pressStartFlashState = true;
+                pressStartFlashCtr = PRESS_START_FAST_FLASH_SPEED;
+                menuStartPressed = true;
+                randState = ((uint16_t)rDIV << 8) | rDIV; // not the best seeding, but whatever
+            }
+        }
+        HALT();
+    }
+
+    playMusic = true;
     startGame();
 
     while(1) {
@@ -133,6 +173,6 @@ void main() {
 ISR_VBLANK() {
     oam_dma_copy();
     cpyWormhole();
-    hUGE_dosound();
+    if (playMusic) { hUGE_dosound(); }
     CBTFX_update();
 }
