@@ -9,7 +9,7 @@
 #include "random.h"
 
 #define NUM_ENEMIES 8
-#define ENEMY_START_OAM_INDEX 2
+#define ENEMY_START_OAM_INDEX 4
 #define ENEMY_TILEINDEX 0x30
 
 #define EO_SPEED 0x0100

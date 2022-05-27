@@ -24,6 +24,7 @@ enum PlayerStates {
 #define DEATH_DELAY 120 // Delay after dying before the game over screen shows, in frames.
 #define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
 #define TP_TILEINDEX 0x14 // start tile index of teleport tiles
+#define EXPLODE_TILEINDEX 0x28
 
 uint16_t playerAngle; // 8.8 fixed
 uint8_t playerDist; // Distance from center of circle.
@@ -131,9 +132,24 @@ void updatePlayer() {
             if (colData != 0xFF) {
                 stateTimer = DEATH_DELAY;
                 playerState = STATE_DYING;
+                for (uint8_t i = 0; i < 4; i++) {
+                    shadow_oam[i].y = baseY + 4;
+                    shadow_oam[i].x = baseX + 4;
+                    shadow_oam[i].tile = EXPLODE_TILEINDEX;
+                    shadow_oam[i].attr = 0;
+                }
             }
         }
     } else if (playerState == STATE_DYING) {
+        uint8_t explodeSpeed = 1;
+        shadow_oam[0].y += explodeSpeed;
+        shadow_oam[0].x += explodeSpeed;
+        shadow_oam[1].y -= explodeSpeed;
+        shadow_oam[1].x += explodeSpeed;
+        shadow_oam[2].y += explodeSpeed;
+        shadow_oam[2].x -= explodeSpeed;
+        shadow_oam[3].y -= explodeSpeed;
+        shadow_oam[3].x -= explodeSpeed;
         stateTimer--;
         if (stateTimer == 0) {
             rWX = 7;
