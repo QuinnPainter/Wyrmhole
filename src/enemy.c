@@ -42,11 +42,20 @@
 #define DEATHTIME 0x001B // number of frames spent in death animation
 
 #define SPAWN_FORMATION(numEnemies) {\
+            uint16_t eTypeRand = genRandom();\
+            uint8_t chosenType = ETYPE_BASIC;\
+            if (eTypeRand < curDifficulty.obstacleEnemyChance) {\
+                chosenType = ETYPE_OBSTACLE;\
+            } else if (eTypeRand < curDifficulty.spiralEnemyChance) {\
+                chosenType = ETYPE_SPIRAL;\
+            } else if (eTypeRand < curDifficulty.shooterEnemyChance) {\
+                chosenType = ETYPE_SHOOTER;\
+            }\
             uint16_t formSpawnRand = genRandom();\
             uint8_t whichFormation = formSpawnRand & 0x3;\
             uint8_t startAngle = formSpawnRand >> 8;\
             for (uint8_t i = 0; i < numEnemies; i++) {\
-                spawnEnemy(ETYPE_BASIC, startAngle + formation ## numEnemies ## Array[(whichFormation * numEnemies) + i]);\
+                spawnEnemy(chosenType, startAngle + formation ## numEnemies ## Array[(whichFormation * numEnemies) + i], (uint8_t)formSpawnRand & 0x80);\
             }\
         }
 
@@ -118,9 +127,8 @@ void updateEnemies() {
     spawnTimer--;
     if (spawnTimer == 0) {
         spawnTimer = (genRandom() & curDifficulty.spawnTimeVariance) + curDifficulty.minTimeBetweenSpawns;
-        spawnEnemy(ETYPE_SPECIAL, genRandom());
 
-        /*uint16_t formationRand = genRandom();
+        uint16_t formationRand = genRandom();
         if (formationRand < curDifficulty.formation2Chance) {
             SPAWN_FORMATION(2)
         } else if (formationRand < curDifficulty.formation3Chance) {
@@ -130,13 +138,20 @@ void updateEnemies() {
         } else if (formationRand < curDifficulty.formation5Chance) {
             SPAWN_FORMATION(5)
         } else { // Spawn 1 enemy
-            uint16_t rand2 = genRandom();
-            if (rand2 < curDifficulty.spiralEnemyChance) {
-                spawnEnemy(ETYPE_SPIRAL, genRandom());
+            uint16_t eTypeRand = genRandom();
+            uint8_t spawnDir = (eTypeRand & 1) << 7;
+            if (eTypeRand < curDifficulty.obstacleEnemyChance) {
+                spawnEnemy(ETYPE_OBSTACLE, genRandom(), spawnDir);
+            } else if (eTypeRand < curDifficulty.spiralEnemyChance) {
+                spawnEnemy(ETYPE_SPIRAL, genRandom(), spawnDir);
+            } else if (eTypeRand < curDifficulty.shooterEnemyChance) {
+                spawnEnemy(ETYPE_SHOOTER, genRandom(), spawnDir);
+            } else if (eTypeRand < curDifficulty.specialEnemyChance) {
+                spawnEnemy(ETYPE_SPECIAL, genRandom(), spawnDir);
             } else {
-                spawnEnemy(ETYPE_OBSTACLE, genRandom());
+                spawnEnemy(ETYPE_BASIC, genRandom(), spawnDir);
             }
-        }*/
+        }
     }
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
@@ -172,26 +187,25 @@ void updateEnemies() {
                 break;
             }
             case ETYPE_BASIC: // Moves straight to the edge, sticks around there for a while, then leaves
-                switch (enemyArray[i].aistate) {
+                switch (enemyArray[i].aistate & 0x7F) {
                     case 0: // Moving to edge
                         enemyArray[i].distance += EB_STRAIGHTSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) > EB_TARGETDIST) {
-                            enemyArray[i].aistate = ((uint8_t)genRandom() & 1) + 1; // set state to 1 or 2 to determine drift direction
+                            enemyArray[i].aistate |= 1;
                             enemyArray[i].timer = EB_DRIFTTIME;
                         }
                         break;
-                    case 1: // Drifting counterclockwise
-                        enemyArray[i].angle -= EB_DRIFTSPEED;
-                        goto DONEDRIFT;
-                    case 2: // Drifting clockwise
-                        enemyArray[i].angle += EB_DRIFTSPEED;
-DONEDRIFT:
+                    case 1: // Drifting
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= EB_DRIFTSPEED; }
+                        else
+                            { enemyArray[i].angle += EB_DRIFTSPEED; }
                         enemyArray[i].timer--;
                         if (enemyArray[i].timer == 0) {
-                            enemyArray[i].aistate = 3; // move to next state
+                            enemyArray[i].aistate = 2; // move to next state
                         }
                         break;
-                    case 3: // moving offscreen
+                    case 2: // moving offscreen
                         enemyArray[i].distance += OFFSCREENSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
                             deleteEnemy(i);
@@ -343,16 +357,11 @@ DONEDRIFT:
     }
 }
 
-void spawnEnemy(uint8_t type, uint8_t angle) {
-    uint16_t randNum = genRandom();
-    uint8_t aistate = 0;
-    if (type == ETYPE_SPIRAL) { // choose random direction for spiralling enemies
-        aistate |= (uint8_t)randNum & 0x80;
-    }
+void spawnEnemy(uint8_t type, uint8_t angle, uint8_t dir) {
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         if (enemyArray[i].type == ETYPE_INACTIVE && enemyArray[i].aistate == 0) {
             enemyArray[i].type = type;
-            enemyArray[i].aistate = aistate;
+            enemyArray[i].aistate = dir;
             enemyArray[i].angle = (uint16_t)angle << 8;
             enemyArray[i].distance = 0;
             return;

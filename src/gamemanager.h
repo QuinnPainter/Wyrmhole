@@ -11,7 +11,10 @@ extern uint16_t gameTime;
 struct difficulty {
     uint16_t minTimeBetweenSpawns;
     uint16_t spawnTimeVariance; // needs to be a bitmask. add this to minTime to get the maxTime
-    uint16_t spiralEnemyChance; // if random less than this, that enemy will be spawned
+    uint16_t obstacleEnemyChance; // if random less than this, that enemy will be spawned
+    uint16_t spiralEnemyChance;
+    uint16_t shooterEnemyChance;
+    uint16_t specialEnemyChance;
     // otherwise basic "go straight" enemy will be spawned
     uint16_t formation2Chance;
     uint16_t formation3Chance;
