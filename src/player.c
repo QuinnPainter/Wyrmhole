@@ -19,17 +19,27 @@ enum PlayerStates {
     STATE_DYING,
 };
 
+struct ExplodeSprite {
+    uint16_t y;
+    uint16_t x;
+};
+
 #define PLAYER_SPEED 0x0200
 #define TELEPORT_SPEED 0x1C
 #define DEATH_DELAY 120 // Delay after dying before the game over screen shows, in frames.
 #define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
 #define TP_TILEINDEX 0x14 // start tile index of teleport tiles
 #define EXPLODE_TILEINDEX 0x28
+#define START_EXPLODESPEED 0x0200
+#define MIN_EXPLODESPEED 0x0070
+#define EXPLODESPEED_DECREASE 0x0008
 
 uint16_t playerAngle; // 8.8 fixed
 uint8_t playerDist; // Distance from center of circle.
 uint8_t playerState;
 uint8_t stateTimer;
+uint16_t explodeSpeed;
+struct ExplodeSprite exSprites[4];
 
 const uint8_t tileTable[] = {
     18, 16, // bottom right quadrant
@@ -137,19 +147,30 @@ void updatePlayer() {
                     shadow_oam[i].x = baseX + 4;
                     shadow_oam[i].tile = EXPLODE_TILEINDEX;
                     shadow_oam[i].attr = 0;
+                    exSprites[i].y = (uint16_t)(baseY + 4) << 8;
+                    exSprites[i].x = (uint16_t)(baseX + 4) << 8;
                 }
+                explodeSpeed = START_EXPLODESPEED;
             }
         }
     } else if (playerState == STATE_DYING) {
-        uint8_t explodeSpeed = 1;
-        shadow_oam[0].y += explodeSpeed;
-        shadow_oam[0].x += explodeSpeed;
-        shadow_oam[1].y -= explodeSpeed;
-        shadow_oam[1].x += explodeSpeed;
-        shadow_oam[2].y += explodeSpeed;
-        shadow_oam[2].x -= explodeSpeed;
-        shadow_oam[3].y -= explodeSpeed;
-        shadow_oam[3].x -= explodeSpeed;
+        if (explodeSpeed > MIN_EXPLODESPEED) {
+            explodeSpeed -= EXPLODESPEED_DECREASE;
+        }
+        for (uint8_t i = 0; i < 4; i++) {
+            if (i == 1 || i == 3) {
+                exSprites[i].y -= explodeSpeed;
+            } else {
+                exSprites[i].y += explodeSpeed;
+            }
+            if (i == 2 || i == 3) {
+                exSprites[i].x -= explodeSpeed;
+            } else {
+                exSprites[i].x += explodeSpeed;
+            }
+            shadow_oam[i].y = exSprites[i].y >> 8;
+            shadow_oam[i].x = exSprites[i].x >> 8;
+        }
         stateTimer--;
         if (stateTimer == 0) {
             rWX = 7;
@@ -174,8 +195,7 @@ void updatePlayer() {
                     // this bodge seems to fix it. why is sdcc so garbage???
                     __asm__("inc sp");
                     __asm__("inc sp");
-                    __asm__("inc sp");
-                    __asm__("ret");
+                    return;
                 }
                 HALT();
             }

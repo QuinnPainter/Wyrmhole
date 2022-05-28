@@ -74,7 +74,7 @@ void startGame() {
     rLCDC = rLCDC | LCDC_OBJON; // enable sprites
     rWY = WINDOW_X_SCORE;
     rWX = WINDOW_Y_SCORE;
-    copyStringVRAM(PausedString, (uint8_t*)0x9C05);
+    copyStringVRAM(PausedString, (uint8_t*)0x9C04);
     addScore(0); // draw score
 }
 
