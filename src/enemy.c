@@ -11,6 +11,7 @@
 #define NUM_ENEMIES 8
 #define ENEMY_START_OAM_INDEX 4
 #define ENEMY_TILEINDEX 0x30
+#define ENEMY_DEATH_TILEINDEX 0x6C
 
 #define EO_SPEED 0x0100
 
@@ -24,6 +25,7 @@
 #define ES_DRIFTSPEED 0x0060
 
 #define OFFSCREENSPEED 0x0100 // speed of enemy moving offscreen
+#define DEATHTIME 0x1B // number of frames spent in death animation
 
 enum EnemyTypes {
     ETYPE_INACTIVE = 0,
@@ -47,6 +49,7 @@ void initEnemies() {
     spawnTimer = 60;
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         enemyArray[i].type = ETYPE_INACTIVE;
+        enemyArray[i].aistate = 0;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].attr = 0;
         shadow_oam[ENEMY_START_OAM_INDEX + (i * 2) + 1].y = 0;
@@ -68,7 +71,14 @@ void updateEnemies() {
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
         switch (enemyArray[i].type) { // Process AI
-            case ETYPE_INACTIVE: continue;
+            case ETYPE_INACTIVE: {
+                if (enemyArray[i].aistate == 0) { continue; }
+                enemyArray[i].timer--;
+                if (enemyArray[i].timer == 0) {
+                    deleteEnemy(i);
+                }
+                continue;
+            }
             case ETYPE_OBSTACLE: { // Inanimate object that goes straight and nothing else.
                 uint8_t oldDist = (uint8_t)(enemyArray[i].distance >> 8);
                 enemyArray[i].distance += EO_SPEED;
@@ -174,7 +184,13 @@ DONEDRIFT:
             deleteBullet(colData);
             if (enemyArray[i].type != ETYPE_OBSTACLE) {
                 addScore(0x0005);
-                deleteEnemy(i);
+                enemyArray[i].type = ETYPE_INACTIVE;
+                enemyArray[i].aistate = 1;
+                enemyArray[i].timer = DEATHTIME;
+                collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_DISABLED;
+                uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
+                shadow_oam[oamIndex1].tile = ENEMY_DEATH_TILEINDEX;
+                shadow_oam[oamIndex1 + 1].tile = ENEMY_DEATH_TILEINDEX + 2;
                 continue;
             }
         }
@@ -188,7 +204,7 @@ void spawnEnemy(uint8_t type) {
         aistate |= (uint8_t)randNum & 0x80;
     }
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
-        if (enemyArray[i].type == ETYPE_INACTIVE) {
+        if (enemyArray[i].type == ETYPE_INACTIVE && enemyArray[i].aistate == 0) {
             enemyArray[i].type = type;
             enemyArray[i].aistate = aistate;
             enemyArray[i].angle = randNum;
@@ -200,6 +216,7 @@ void spawnEnemy(uint8_t type) {
 
 void deleteEnemy(uint8_t i) {
     enemyArray[i].type = ETYPE_INACTIVE;
+    enemyArray[i].aistate = 0;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2)].y = 0;
     shadow_oam[ENEMY_START_OAM_INDEX + (i * 2) + 1].y = 0;
     collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_DISABLED;
