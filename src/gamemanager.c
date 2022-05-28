@@ -9,16 +9,16 @@ uint8_t curStage;
 struct difficulty curDifficulty;
 
 struct difficulty difficultyTable[] = {
-    { .minTimeBetweenSpawns = 150,
-    .spawnTimeVariance = 0x0000,
-    .obstacleEnemyChance = 0x0000,
-    .spiralEnemyChance = 0x0000,
+    { .minTimeBetweenSpawns = 100,
+    .spawnTimeVariance = 0x001F,
+    .obstacleEnemyChance = 0x3FFF,
+    .spiralEnemyChance = 0x7FFF,
     .shooterEnemyChance = 0x0000,
     .specialEnemyChance = 0x0000,
-    .formation2Chance = 0x0000,
-    .formation3Chance = 0x0000,
+    .formation2Chance = 0x3FFF,
+    .formation3Chance = 0x7FFF,
     .formation4Chance = 0x0000,
-    .formation5Chance = 0xFFFF, },
+    .formation5Chance = 0x0000, },
     { .minTimeBetweenSpawns = 100,
     .spawnTimeVariance = 0x0000,
     .obstacleEnemyChance = 0x0000,
@@ -31,8 +31,8 @@ struct difficulty difficultyTable[] = {
     .formation5Chance = 0x0000, },
 };
 uint16_t difficultyStageLengths[] = {
-    0x00FF,
-    0xFFFF, // last stage should always have FFFF
+    0x0FFF,
+    0xFFFF, // last stage should always be FFFF
 };
 
 void addScore(bcd16 val) {

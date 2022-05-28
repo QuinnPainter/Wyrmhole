@@ -56,10 +56,10 @@ void updateBullets() {
         shadow_oam[BULLET_START_OAM_INDEX + i].x = baseX;
 
         collisionArray[COLLISION_INDEX_BULLETS + i].objType = bulletArray[i].type == B_PLAYER ? OBJTYPE_PLAYERBULLET : OBJTYPE_ENEMY;
-        collisionArray[COLLISION_INDEX_BULLETS + i].yTop = baseY - 1;
-        collisionArray[COLLISION_INDEX_BULLETS + i].yBottom = baseY + 1;
-        collisionArray[COLLISION_INDEX_BULLETS + i].xLeft = baseX - 1;
-        collisionArray[COLLISION_INDEX_BULLETS + i].xRight = baseX + 1;
+        collisionArray[COLLISION_INDEX_BULLETS + i].yTop = baseY - 2;
+        collisionArray[COLLISION_INDEX_BULLETS + i].yBottom = baseY + 2;
+        collisionArray[COLLISION_INDEX_BULLETS + i].xLeft = baseX - 2;
+        collisionArray[COLLISION_INDEX_BULLETS + i].xRight = baseX + 2;
         collisionArray[COLLISION_INDEX_BULLETS + i].info = i;
     }
 }
