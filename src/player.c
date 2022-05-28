@@ -31,8 +31,8 @@ struct ExplodeSprite {
 #define TP_TILEINDEX 0x14 // start tile index of teleport tiles
 #define EXPLODE_TILEINDEX 0x28
 #define START_EXPLODESPEED 0x0200
-#define MIN_EXPLODESPEED 0x0070
-#define EXPLODESPEED_DECREASE 0x0008
+#define MIN_EXPLODESPEED 0x0080
+#define EXPLODESPEED_DECREASE 0x000A
 
 uint16_t playerAngle; // 8.8 fixed
 uint8_t playerDist; // Distance from center of circle.

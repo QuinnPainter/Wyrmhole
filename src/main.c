@@ -48,13 +48,14 @@ uint8_t bgBuffer[] = {
 #undef B
 #undef C
 
-#define WINDOW_X_SCORE (160 - 24)
-#define WINDOW_Y_SCORE (144 - 8)
+#define WINDOW_X_SCORE (uint8_t)(160 - 24) // cast because sdcc is dum dum
+#define WINDOW_Y_SCORE (uint8_t)(144 - 8)
 #define WINDOW_X_PAUSED (160 - (24 + (8 * 7)))
 #define WINDOW_Y_PRESSSTART (144 - (8 * 3))
 #define PRESS_START_FLASH_SPEED 40
 #define PRESS_START_FAST_FLASH_SPEED 10
 #define PRESS_START_FLASH_TIME 100 // number of frames spent flashing before moving to the game
+#define FADE_SPEED 4
 
 bool playMusic = false;
 uint8_t pressStartFlashState = true;
@@ -147,8 +148,39 @@ void main() {
         HALT();
     }
 
+    // fade out
+    for (uint8_t i = 0; i < 4; i++) {
+        rBGP >>= 2;
+        rBGP |= 0b11000000;
+        for (uint8_t f = FADE_SPEED; f != 0; f--) {
+            HALT();
+        }
+    }
+
     playMusic = true;
     startGame();
+
+    // this is the dumbest possible way to achieve a fade. but it works
+    // the deadline is early tomorrow and I still have half the game left. no time to do it right :(
+    for (uint8_t i = 0; i < 15; i++) {
+        updateWormholeAnim(); // make sure wormhole is drawn before we fade in
+        HALT();
+    }
+    rBGP = 0b11111110;
+    for (uint8_t f = FADE_SPEED; f != 0; f--) {
+        updateWormholeAnim();
+        HALT();
+    }
+    rBGP = 0b11111001;
+    for (uint8_t f = FADE_SPEED; f != 0; f--) {
+        updateWormholeAnim();
+        HALT();
+    }
+    rBGP = 0b11100100;
+    for (uint8_t f = FADE_SPEED; f != 0; f--) {
+        updateWormholeAnim();
+        HALT();
+    }
 
     while(1) {
         updateWormholeAnim();
