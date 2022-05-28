@@ -81,6 +81,7 @@ void CBTFX_update(void) {
             CBTFX_size--;
 
             if(CBTFX_size == 0){
+                rNR51 = 0xFF;
            		CBTFX_priority = 0;
                 if (CBTFX_ch_used & 128){
                     MUSIC_DRIVER_CH2_ON;
