@@ -30,6 +30,14 @@
 #define ESH_SHOOTSPEED 100
 #define ESH_DRIFTSPEED 0x0040
 
+#define ESP_STRAIGHTSPEED 0x0080
+#define ESP_SIDESPEED 0x0210
+#define ESP_TARGETDIST 90
+#define ESP_STOPTIME 20
+#define ESP_SPINTIME 300
+#define ESP_OFFSCREENSPEED 0x0300
+
+
 #define OFFSCREENSPEED 0x0100 // speed of enemy moving offscreen
 #define DEATHTIME 0x001B // number of frames spent in death animation
 
@@ -103,7 +111,7 @@ void updateEnemies() {
     spawnTimer--;
     if (spawnTimer == 0) {
         spawnTimer = (genRandom() & curDifficulty.spawnTimeVariance) + curDifficulty.minTimeBetweenSpawns;
-        spawnEnemy(ETYPE_SHOOTER, genRandom());
+        spawnEnemy(ETYPE_SPECIAL, genRandom());
 
         /*uint16_t formationRand = genRandom();
         if (formationRand < curDifficulty.formation2Chance) {
@@ -240,8 +248,42 @@ DONEDRIFT:
                 }
                 break;
             case ETYPE_SPECIAL:
-                switch (enemyArray[i].aistate) {
-                    case 0: // Spiralling out
+                switch (enemyArray[i].aistate & 0x7F) {
+                    case 0: // Moving to desired circle
+                        enemyArray[i].distance += ESP_STRAIGHTSPEED;
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= ESP_SIDESPEED; }
+                        else
+                            { enemyArray[i].angle += ESP_SIDESPEED; }
+                        if ((uint8_t)(enemyArray[i].distance >> 8) > ESP_TARGETDIST) {
+                            enemyArray[i].aistate |= 1;
+                            enemyArray[i].timer = ESP_SPINTIME;
+                        }
+                        break;
+                    case 1: // Spinning around
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= ESP_SIDESPEED; }
+                        else
+                            { enemyArray[i].angle += ESP_SIDESPEED; }
+                        enemyArray[i].timer--;
+                        if (enemyArray[i].timer == 0) {
+                            enemyArray[i].aistate = 2; // move to next state
+                            enemyArray[i].timer = ESP_STOPTIME;
+                        }
+                        break;
+                    case 2: // stop for short time
+                        enemyArray[i].timer--;
+                        if (enemyArray[i].timer == 0) {
+                            enemyArray[i].aistate = 3; // move to next state
+                        }
+                        break;
+                    case 3: // moving offscreen
+                        enemyArray[i].distance += ESP_OFFSCREENSPEED;
+                        if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
+                            deleteEnemy(i);
+                            continue;
+                        }
+                        break;
                 }
         }
 
@@ -279,6 +321,8 @@ DONEDRIFT:
             deleteBullet(colData);
             if (enemyArray[i].type != ETYPE_OBSTACLE) {
                 addScore(0x0005);
+                if (enemyArray[i].type == ETYPE_SPECIAL) { CBTFX_PLAY_SFX_enemy_death_special; }
+                else { CBTFX_PLAY_SFX_enemy_death; }
                 enemyArray[i].type = ETYPE_INACTIVE;
                 enemyArray[i].aistate = 1;
                 enemyArray[i].timer = DEATHTIME;
@@ -286,8 +330,6 @@ DONEDRIFT:
                 uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
                 shadow_oam[oamIndex1].tile = ENEMY_DEATH_TILEINDEX;
                 shadow_oam[oamIndex1 + 1].tile = ENEMY_DEATH_TILEINDEX + 2;
-                if (enemyArray[i].type == ETYPE_SPECIAL) { CBTFX_PLAY_SFX_enemy_death_special; }
-                else { CBTFX_PLAY_SFX_enemy_death; }
                 continue;
             }
         }
