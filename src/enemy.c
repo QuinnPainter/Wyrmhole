@@ -22,6 +22,11 @@
 #define ES_SIDESPEED 0x00F0
 #define ES_DRIFTSPEED 0x0060
 
+#define ESH_STRAIGHTSPEED 0x0090
+#define ESH_TARGETDIST 100
+#define ESH_SHOOTSPEED 100
+#define ESH_DRIFTSPEED 0x0040
+
 #define OFFSCREENSPEED 0x0100 // speed of enemy moving offscreen
 #define DEATHTIME 0x001B // number of frames spent in death animation
 
@@ -64,6 +69,7 @@ enum EnemyTypes {
     ETYPE_OBSTACLE,
     ETYPE_BASIC,
     ETYPE_SPIRAL,
+    ETYPE_SHOOTER,
 };
 
 struct Enemy {
@@ -93,8 +99,9 @@ void updateEnemies() {
     spawnTimer--;
     if (spawnTimer == 0) {
         spawnTimer = (genRandom() & curDifficulty.spawnTimeVariance) + curDifficulty.minTimeBetweenSpawns;
+        spawnEnemy(ETYPE_SHOOTER, genRandom());
 
-        uint16_t formationRand = genRandom();
+        /*uint16_t formationRand = genRandom();
         if (formationRand < curDifficulty.formation2Chance) {
             SPAWN_FORMATION(2)
         } else if (formationRand < curDifficulty.formation3Chance) {
@@ -110,7 +117,7 @@ void updateEnemies() {
             } else {
                 spawnEnemy(ETYPE_OBSTACLE, genRandom());
             }
-        }
+        }*/
     }
 
     for (uint8_t i = 0; i < NUM_ENEMIES; i++) {
@@ -202,6 +209,28 @@ DONEDRIFT:
                         if ((uint8_t)(enemyArray[i].distance >> 8) < 10) { // check for overflow
                             deleteEnemy(i);
                             continue;
+                        }
+                        break;
+                }
+                break;
+            case ETYPE_SHOOTER:
+                switch (enemyArray[i].aistate & 0x7F) {
+                    case 0: // Moving to edge
+                        enemyArray[i].distance += ESH_STRAIGHTSPEED;
+                        if ((uint8_t)(enemyArray[i].distance >> 8) > ESH_TARGETDIST) {
+                            enemyArray[i].aistate = 1;
+                            enemyArray[i].timer = ESH_SHOOTSPEED;
+                        }
+                        break;
+                    case 1: // Shooting
+                        if (enemyArray[i].aistate & 0x80)
+                            { enemyArray[i].angle -= ESH_DRIFTSPEED; }
+                        else
+                            { enemyArray[i].angle += ESH_DRIFTSPEED; }
+                        enemyArray[i].timer--;
+                        if (enemyArray[i].timer == 0) {
+                            enemyArray[i].timer = ESH_SHOOTSPEED;
+                            fireBullet(B_ENEMY, enemyArray[i].angle >> 8, enemyArray[i].distance >> 8, 0x0200);
                         }
                         break;
                 }

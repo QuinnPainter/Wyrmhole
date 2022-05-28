@@ -82,7 +82,7 @@ void updatePlayer() {
             }
 
             if (joypad_pressed & PAD_A) {
-                fireBullet(playerAngle >> 8, playerDist, -0x0300);
+                fireBullet(B_PLAYER, playerAngle >> 8, playerDist, -0x0300);
             } else if (joypad_pressed & PAD_B) {
                 playerState = STATE_TELEPORTING1; // initiate teleport
                 // set tiles

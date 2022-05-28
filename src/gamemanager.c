@@ -9,7 +9,7 @@ uint8_t curStage;
 struct difficulty curDifficulty;
 
 struct difficulty difficultyTable[] = {
-    { .minTimeBetweenSpawns = 10,
+    { .minTimeBetweenSpawns = 150,
     .spawnTimeVariance = 0x0000,
     .spiralEnemyChance = 0x0000,
     .formation2Chance = 0x0000,
