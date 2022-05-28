@@ -11,10 +11,18 @@ struct difficulty curDifficulty;
 struct difficulty difficultyTable[] = {
     { .minTimeBetweenSpawns = 10,
     .spawnTimeVariance = 0x0000,
-    .spiralEnemyChance = 0x0000, },
+    .spiralEnemyChance = 0x0000,
+    .formation2Chance = 0x0000,
+    .formation3Chance = 0x0000,
+    .formation4Chance = 0x0000,
+    .formation5Chance = 0xFFFF, },
     { .minTimeBetweenSpawns = 100,
     .spawnTimeVariance = 0x0000,
-    .spiralEnemyChance = 0x7FFF, }
+    .spiralEnemyChance = 0x7FFF,
+    .formation2Chance = 0x0000,
+    .formation3Chance = 0x0000,
+    .formation4Chance = 0x0000,
+    .formation5Chance = 0x0000, },
 };
 uint16_t difficultyStageLengths[] = {
     0x00FF,
