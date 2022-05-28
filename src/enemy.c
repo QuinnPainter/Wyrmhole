@@ -75,6 +75,13 @@ const uint8_t formation5Array[] = {
     0, 16, 32, 48, 64, // spread over quadrant
 };
 
+const uint16_t enemyScores[] = {
+    0x0005, // Basic
+    0x0010, // Spiral
+    0x0015, // Shooter
+    0x0100, // Special
+};
+
 enum EnemyTypes {
     ETYPE_INACTIVE = 0,
     ETYPE_OBSTACLE,
@@ -320,7 +327,7 @@ DONEDRIFT:
         if (colData != 0xFF) {
             deleteBullet(colData);
             if (enemyArray[i].type != ETYPE_OBSTACLE) {
-                addScore(0x0005);
+                addScore(enemyScores[enemyArray[i].type - 2]);
                 if (enemyArray[i].type == ETYPE_SPECIAL) { CBTFX_PLAY_SFX_enemy_death_special; }
                 else { CBTFX_PLAY_SFX_enemy_death; }
                 enemyArray[i].type = ETYPE_INACTIVE;
