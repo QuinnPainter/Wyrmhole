@@ -13,8 +13,6 @@
 #define ENEMY_TILEINDEX 0x30
 #define ENEMY_DEATH_TILEINDEX 0x6C
 
-#define EO_SPEED 0x0100
-
 #define EB_STRAIGHTSPEED 0x00A0 // Basic enemy moving toward the edge
 #define EB_TARGETDIST 160
 #define EB_DRIFTSPEED 0x0030
@@ -81,7 +79,20 @@ void updateEnemies() {
             }
             case ETYPE_OBSTACLE: { // Inanimate object that goes straight and nothing else.
                 uint8_t oldDist = (uint8_t)(enemyArray[i].distance >> 8);
-                enemyArray[i].distance += EO_SPEED;
+                // todo - this should probably be a table?
+                if (enemyArray[i].distance < (20 << 8)) {
+                    enemyArray[i].distance += 0x0060;
+                } else if (enemyArray[i].distance < (50 << 8)) {
+                    enemyArray[i].distance += 0x00B0;
+                } else if (enemyArray[i].distance < (90 << 8)) {
+                    enemyArray[i].distance += 0x0120;
+                } else if (enemyArray[i].distance < (130 << 8)) {
+                    enemyArray[i].distance += 0x0200;
+                } else if (enemyArray[i].distance < (180 << 8)) {
+                    enemyArray[i].distance += 0x03F0;
+                } else {
+                    enemyArray[i].distance += 0x0500;
+                }
                 if ((uint8_t)(enemyArray[i].distance >> 8) < oldDist) { // check for overflow
                     deleteEnemy(i);
                     continue;
