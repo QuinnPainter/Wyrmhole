@@ -68,6 +68,8 @@ void initPlayer() {
     playerAngle = 0x03F00; // start at the bottom
     playerDist = NORMAL_DISTANCE;
     playerState = STATE_ALIVE;
+    shadow_oam[2].y = 0;
+    shadow_oam[3].y = 0; // hide extra explosion sprites
 }
 
 void updatePlayer() {

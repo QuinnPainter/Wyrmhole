@@ -164,10 +164,11 @@ DONEDRIFT:
 
         uint8_t distance = enemyArray[i].distance >> 8;
         uint8_t tileOffset = 8;
+        uint8_t colBoxSize = 7; // distance from center to edge
         if (distance < 40)
-            { tileOffset = 0; }
+            { tileOffset = 0; colBoxSize = 3; }
         else if (distance < 90)
-            { tileOffset = 4; }
+            { tileOffset = 4; colBoxSize = 5; }
         tileOffset += (enemyArray[i].type - 1) * 12;
 
         uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
@@ -184,10 +185,10 @@ DONEDRIFT:
         shadow_oam[oamIndex1 + 1].x = baseX + 8;
 
         collisionArray[COLLISION_INDEX_ENEMIES + i].objType = OBJTYPE_ENEMY;
-        collisionArray[COLLISION_INDEX_ENEMIES + i].yTop = baseY - 7;
-        collisionArray[COLLISION_INDEX_ENEMIES + i].yBottom = baseY + 7;
-        collisionArray[COLLISION_INDEX_ENEMIES + i].xLeft = baseX - 7;
-        collisionArray[COLLISION_INDEX_ENEMIES + i].xRight = baseX + 7;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].yTop = baseY - colBoxSize;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].yBottom = baseY + colBoxSize;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].xLeft = baseX - colBoxSize;
+        collisionArray[COLLISION_INDEX_ENEMIES + i].xRight = baseX + colBoxSize;
         collisionArray[COLLISION_INDEX_ENEMIES + i].info = i;
 
         uint8_t colData = objCollisionCheck(COLLISION_INDEX_ENEMIES + i, OBJTYPE_PLAYERBULLET);
