@@ -4,6 +4,9 @@
 #include "angles.h"
 #include "bullet.h"
 #include "collision.h"
+#include "cbtfx.h"
+#include "sfx/SFX_player_fire.h"
+#include "sfx/SFX_enemy_fire.h"
 
 #define NUM_BULLETS 5
 #define ENEMY_MAX_BULLETS 3
@@ -76,6 +79,8 @@ void fireBullet(uint8_t type, uint8_t angle, uint8_t distance, uint16_t speed) {
             bulletArray[i].angle = angle;
             bulletArray[i].distance = (uint16_t)distance << 8;
             bulletArray[i].speed = speed;
+            if (type == B_PLAYER) { CBTFX_PLAY_SFX_player_fire; }
+            else { CBTFX_PLAY_SFX_enemy_fire; }
             return;
         }
     }

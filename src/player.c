@@ -11,6 +11,9 @@
 #include "text.h"
 #include "gamemanager.h"
 #include "main.h"
+#include "cbtfx.h"
+#include "sfx/SFX_player_death.h"
+#include "sfx/SFX_player_transport.h"
 
 enum PlayerStates {
     STATE_ALIVE = 0,
@@ -96,6 +99,7 @@ void updatePlayer() {
                 shadow_oam[1].tile = TP_TILEINDEX + tileTable[tileTableBase + 1];
                 // disable collision
                 collisionArray[COLLISION_INDEX_PLAYER].objType = OBJTYPE_DISABLED;
+                CBTFX_PLAY_SFX_player_transport;
             }
         } else if (playerState == STATE_TELEPORTING1) {
             uint8_t oldDist = playerDist;
@@ -153,6 +157,7 @@ void updatePlayer() {
                     exSprites[i].x = (uint16_t)(baseX + 4) << 8;
                 }
                 explodeSpeed = START_EXPLODESPEED;
+                CBTFX_PLAY_SFX_player_death;
             }
         }
     } else if (playerState == STATE_DYING) {

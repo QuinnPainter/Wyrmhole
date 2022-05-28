@@ -7,6 +7,9 @@
 #include "bullet.h"
 #include "gamemanager.h"
 #include "random.h"
+#include "cbtfx.h"
+#include "sfx/SFX_enemy_death.h"
+#include "sfx/SFX_enemy_death_special.h"
 
 #define NUM_ENEMIES 8
 #define ENEMY_START_OAM_INDEX 4
@@ -70,6 +73,7 @@ enum EnemyTypes {
     ETYPE_BASIC,
     ETYPE_SPIRAL,
     ETYPE_SHOOTER,
+    ETYPE_SPECIAL
 };
 
 struct Enemy {
@@ -235,6 +239,10 @@ DONEDRIFT:
                         break;
                 }
                 break;
+            case ETYPE_SPECIAL:
+                switch (enemyArray[i].aistate) {
+                    case 0: // Spiralling out
+                }
         }
 
         uint8_t distance = enemyArray[i].distance >> 8;
@@ -278,6 +286,8 @@ DONEDRIFT:
                 uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);
                 shadow_oam[oamIndex1].tile = ENEMY_DEATH_TILEINDEX;
                 shadow_oam[oamIndex1 + 1].tile = ENEMY_DEATH_TILEINDEX + 2;
+                if (enemyArray[i].type == ETYPE_SPECIAL) { CBTFX_PLAY_SFX_enemy_death_special; }
+                else { CBTFX_PLAY_SFX_enemy_death; }
                 continue;
             }
         }

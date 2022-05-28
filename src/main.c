@@ -20,6 +20,7 @@
 #include "gamemanager.h"
 #include "random.h"
 #include "main.h"
+#include "sfx/SFX_press_start.h"
 
 #define A 10
 #define B 11
@@ -138,6 +139,7 @@ void main() {
         } else {
             joypad_update();
             if (joypad_pressed & PAD_START) {
+                CBTFX_PLAY_SFX_press_start;
                 menuStateCtr = PRESS_START_FLASH_TIME;
                 pressStartFlashState = true;
                 pressStartFlashCtr = PRESS_START_FAST_FLASH_SPEED;
