@@ -16,14 +16,14 @@
 #define EB_STRAIGHTSPEED 0x00A0 // Basic enemy moving toward the edge
 #define EB_TARGETDIST 160
 #define EB_DRIFTSPEED 0x0030
-#define EB_DRIFTTIME 250 // number of frames it spends drifting before going away
+#define EB_DRIFTTIME 600 // number of frames it spends drifting before going away
 
 #define ES_STRAIGHTSPEED 0x0050
 #define ES_SIDESPEED 0x00F0
 #define ES_DRIFTSPEED 0x0060
 
 #define OFFSCREENSPEED 0x0100 // speed of enemy moving offscreen
-#define DEATHTIME 0x1B // number of frames spent in death animation
+#define DEATHTIME 0x001B // number of frames spent in death animation
 
 enum EnemyTypes {
     ETYPE_INACTIVE = 0,
@@ -35,7 +35,7 @@ enum EnemyTypes {
 struct Enemy {
     uint8_t type;
     uint8_t aistate;
-    uint8_t timer;
+    uint16_t timer;
     uint16_t angle;
     uint16_t distance; // 8.8 fixed point
 };
