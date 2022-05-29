@@ -18,7 +18,7 @@
 
 #define EB_STRAIGHTSPEED 0x00A0 // Basic enemy moving toward the edge
 #define EB_TARGETDIST 160
-#define EB_DRIFTSPEED 0x0030
+#define EB_DRIFTSPEED 0x0050
 #define EB_DRIFTTIME 600 // number of frames it spends drifting before going away
 
 #define ES_STRAIGHTSPEED 0x0050
@@ -28,7 +28,7 @@
 #define ESH_STRAIGHTSPEED 0x0090
 #define ESH_TARGETDIST 100
 #define ESH_SHOOTSPEED 100
-#define ESH_DRIFTSPEED 0x0040
+#define ESH_DRIFTSPEED 0x0080
 
 #define ESP_STRAIGHTSPEED 0x0080
 #define ESP_SIDESPEED 0x0210
@@ -251,7 +251,7 @@ void updateEnemies() {
                     case 0: // Moving to edge
                         enemyArray[i].distance += ESH_STRAIGHTSPEED;
                         if ((uint8_t)(enemyArray[i].distance >> 8) > ESH_TARGETDIST) {
-                            enemyArray[i].aistate = 1;
+                            enemyArray[i].aistate |= 1;
                             enemyArray[i].timer = ESH_SHOOTSPEED;
                         }
                         break;
@@ -310,11 +310,11 @@ void updateEnemies() {
 
         uint8_t distance = enemyArray[i].distance >> 8;
         uint8_t tileOffset = 8;
-        uint8_t colBoxSize = 7; // distance from center to edge
+        uint8_t colBoxSize = 8; // distance from center to edge
         if (distance < 40)
             { tileOffset = 0; colBoxSize = 3; }
         else if (distance < 90)
-            { tileOffset = 4; colBoxSize = 5; }
+            { tileOffset = 4; colBoxSize = 6; }
         tileOffset += (enemyArray[i].type - 1) * 12;
 
         uint8_t oamIndex1 = ENEMY_START_OAM_INDEX + (i * 2);

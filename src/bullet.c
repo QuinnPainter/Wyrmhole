@@ -8,10 +8,10 @@
 #include "sfx/SFX_player_fire.h"
 #include "sfx/SFX_enemy_fire.h"
 
-#define NUM_BULLETS 5
+#define NUM_BULLETS 6
 #define ENEMY_MAX_BULLETS 3
-#define PLAYER_MAX_BULLETS 2
-#define BULLET_START_OAM_INDEX (40 - 5)
+#define PLAYER_MAX_BULLETS 3
+#define BULLET_START_OAM_INDEX (40 - 6)
 #define BULLET_TILEINDEX 0x70
 #define BULLET_ENEMY_TILEINDEX 0x76
 
