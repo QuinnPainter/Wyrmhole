@@ -145,6 +145,7 @@ void main() {
                 pressStartFlashCtr = PRESS_START_FAST_FLASH_SPEED;
                 menuStartPressed = true;
                 randState = ((uint16_t)rDIV << 8) | rDIV; // not the best seeding, but whatever
+                if (randState == 0) { randState = 0x1337; }
             }
         }
         HALT();
