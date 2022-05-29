@@ -16,6 +16,8 @@ Also thanks to bbbbbr for getting my code to ACTUALLY work
 #define MUSIC_DRIVER_CH2_OFF hUGE_mute_channel(HT_CH2, 1);
 #define MUSIC_DRIVER_CH4_ON hUGE_mute_channel(HT_CH4, 0);
 #define MUSIC_DRIVER_CH4_OFF hUGE_mute_channel(HT_CH4, 1);
+// 0 = Panning won't be reset after an SFX, 1 = Panning will be set to 0XFF after an SFX plays.
+#define MONO_MUSIC 1
 
 const unsigned char CBTFX_HEADER[] = "CBT-FX BY COFFEEBAT 2021-2022";
 const uint8_t * CBTFX_pointer;
@@ -31,6 +33,9 @@ void CBTFX_init(const unsigned char * SFX) {
     // To avoid hanging notes
     if (CBTFX_ch_used & 128) rNR21 = rNR22 = rNR23 = rNR24 = 0;
     if (CBTFX_ch_used & 32) rNR41 = rNR42 = rNR43 = rNR44 = 0;
+    // To avoid the priority system leaving some channels turned off (Don't ask how I discovered this...)
+    MUSIC_DRIVER_CH2_ON;
+    MUSIC_DRIVER_CH4_ON;
     CBTFX_priority = *SFX & 0x0f;
     CBTFX_ch_used = *SFX++;
     CBTFX_size = *SFX++;
@@ -81,7 +86,6 @@ void CBTFX_update(void) {
             CBTFX_size--;
 
             if(CBTFX_size == 0){
-                rNR51 = 0xFF;
            		CBTFX_priority = 0;
                 if (CBTFX_ch_used & 128){
                     MUSIC_DRIVER_CH2_ON;
@@ -91,6 +95,9 @@ void CBTFX_update(void) {
                     MUSIC_DRIVER_CH4_ON;
                     rNR41 = rNR42 = rNR43 = rNR44 = 0;
                 }
+                #if (MONO_MUSIC==1)
+                rNR51 = 0xFF;
+                #endif
             }
 
         }
