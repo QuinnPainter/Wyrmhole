@@ -184,7 +184,7 @@ void updatePlayer() {
             rWY = 144 - (8 * 9);
             rLCDC = rLCDC & ~LCDC_OBJON; // disable sprites
             uint16_t vAddr = 0x9C00;
-            vram_memset(0x9C00, 0, 32 * 9); // clear window area
+            vram_memset(0x9C00, 0x36, 32 * 9); // clear window area
             copyStringVRAM(GameOverString, (uint8_t*)0x9C20);
             copyStringVRAM(ScoreString, (uint8_t*)0x9C61);
             drawBCD16((uint8_t*)0x9C6E, score);

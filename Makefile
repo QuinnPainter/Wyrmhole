@@ -18,11 +18,12 @@ tools/gbcompress/gbcompress:
 	@mkdir -p $(dir $@)
 	@$(MAKE) -C tools/gbcompress
 
-# Convert tilemaps
+# Convert tilemaps (ALSO INVERTS THEM)
 $(BUILD)/assets/%.gbcompress $(BUILD)/assets/%.tilemap: tilemaps/%.png
 	@echo Converting $<
 	@mkdir -p $(dir $@)
 	$(Q)rgbgfx $< -u -o $(BUILD)/assets/$*.2bpp -t $(BUILD)/assets/$*.tilemap
+	python tools/InvertColours.py $(BUILD)/assets/$*.2bpp
 	@./tools/gbcompress/gbcompress $(BUILD)/assets/$*.2bpp $@
 
 # Convert compressed assets

@@ -40,6 +40,8 @@ CHARMAP "Z", "Y" + 1
 CHARMAP "!", "Z" + 1
 CHARMAP ".", "!" + 1
 CHARMAP " ", "." + 1 ; Empty space
+CHARMAP "<", " " + 1
+CHARMAP ">", "<" + 1
 
 SECTION "TextBufferHRAM", HRAM
 Scratchpad: DS 4
@@ -126,3 +128,6 @@ _HighScoreString:: DB "BEST", 0
 SECTION "RetryString", ROM0
 _RetryString:: DB  "  PRESS START", 0
 _Retry2String:: DB "          TO RETRY", 0
+
+SECTION "PressStartString", ROM0
+_PressStartString:: DB "<>PRESS START<>", 0

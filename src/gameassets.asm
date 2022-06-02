@@ -28,9 +28,3 @@ _titleTiles2_end::
 _titleTilemap2::
     INCBIN "_build/assets/title2.tilemap"
 _titleTilemap2_end::
-_titleTiles3::
-    INCBIN "_build/assets/title3.gbcompress"
-_titleTiles3_end::
-_titleTilemap3::
-    INCBIN "_build/assets/title3.tilemap"
-_titleTilemap3_end::

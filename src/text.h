@@ -16,5 +16,6 @@ extern const uint8_t ScoreString[];
 extern const uint8_t HighScoreString[];
 extern const uint8_t RetryString[];
 extern const uint8_t Retry2String[];
+extern const uint8_t PressStartString[];
 
 #endif//TEXT_H

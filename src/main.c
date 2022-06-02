@@ -89,18 +89,18 @@ void main() {
     gb_decompress(wormholeTiles, (uint8_t*)0x9000);
     gb_decompress(fontTiles, (uint8_t*)0x9100);
     gb_decompress(titleTiles, (uint8_t*)0x8800);
-    gb_decompress(titleTiles2, (uint8_t*)0x9370);
-    gb_decompress(titleTiles3, (uint8_t*)0x8F10);
+    gb_decompress(titleTiles2, (uint8_t*)0x9390);
 
     drawTilemap((uint8_t*)0x99C0, titleTilemap, titleTilemap_end, 0x80);
-    drawTilemap((uint8_t*)0x9AE0, titleTilemap2, titleTilemap2_end, 0x37);
-    drawTilemap((uint8_t*)0x9C00, titleTilemap3, titleTilemap3_end, 0xF1);
+    drawTilemap((uint8_t*)0x9AE0, titleTilemap2, titleTilemap2_end, 0x39);
+    
+    copyStringVRAM(PressStartString, (uint8_t*)0x9C22);
 
     joypad_state = joypad_pressed = 0;
 
     initWormhole();
 
-    rBGP = 0b11100100;
+    rBGP = 0b00011011; // inverted palette
     rOBP0 = 0b11100100;
     rOBP1 = 0b11100100;
 
@@ -153,8 +153,8 @@ void main() {
 
     // fade out
     for (uint8_t i = 0; i < 4; i++) {
-        rBGP >>= 2;
-        rBGP |= 0b11000000;
+        rBGP <<= 2;
+        rBGP |= 0b00000011;
         for (uint8_t f = FADE_SPEED; f != 0; f--) {
             HALT();
         }
