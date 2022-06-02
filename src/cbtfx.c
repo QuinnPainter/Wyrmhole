@@ -29,7 +29,7 @@ uint8_t CBTFX_ch_used = 0;
 
 //Restart values and point to the new sfx
 void CBTFX_init(const unsigned char * SFX) {
-    if (*SFX & 0x0f < CBTFX_priority) return;
+    if ((*SFX & 0x0f) < CBTFX_priority) return;
     // To avoid hanging notes
     if (CBTFX_ch_used & 128) rNR21 = rNR22 = rNR23 = rNR24 = 0;
     if (CBTFX_ch_used & 32) rNR41 = rNR42 = rNR43 = rNR44 = 0;
