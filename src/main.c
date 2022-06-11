@@ -93,7 +93,7 @@ void main() {
 
     drawTilemap((uint8_t*)0x99C0, titleTilemap, titleTilemap_end, 0x80);
     drawTilemap((uint8_t*)0x9AE0, titleTilemap2, titleTilemap2_end, 0x39);
-    
+
     copyStringVRAM(PressStartString, (uint8_t*)0x9C22);
 
     joypad_state = joypad_pressed = 0;
@@ -152,9 +152,8 @@ void main() {
     }
 
     // fade out
-    for (uint8_t i = 0; i < 4; i++) {
-        rBGP <<= 2;
-        rBGP |= 0b00000011;
+    for (uint8_t i = 4; i != 0; i--) {
+        rBGP = (rBGP << 2) | 0b00000011;
         for (uint8_t f = FADE_SPEED; f != 0; f--) {
             HALT();
         }
@@ -165,7 +164,7 @@ void main() {
 
     // this is the dumbest possible way to achieve a fade. but it works
     // the deadline is early tomorrow and I still have half the game left. no time to do it right :(
-    for (uint8_t i = 0; i < 15; i++) {
+    for (uint8_t i = 15; i != 0; i--) {
         updateWormholeAnim(); // make sure wormhole is drawn before we fade in
         HALT();
     }

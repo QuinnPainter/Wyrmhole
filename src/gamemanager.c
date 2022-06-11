@@ -8,7 +8,7 @@ uint8_t curStage;
 
 struct difficulty curDifficulty;
 
-struct difficulty difficultyTable[] = {
+const struct difficulty difficultyTable[] = {
     { .minTimeBetweenSpawns = 100,
     .spawnTimeVariance = 0x001F,
     .obstacleEnemyChance = 0x3FFF,
@@ -80,7 +80,7 @@ struct difficulty difficultyTable[] = {
     .formation4Chance = 0x4FFF,
     .formation5Chance = 0x7FFF, },
 };
-uint16_t difficultyStageLengths[] = {
+const uint16_t difficultyStageLengths[] = {
     0x0400,
     0x0800,
     0x09FF,

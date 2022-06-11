@@ -28,6 +28,7 @@ struct ExplodeSprite {
 };
 
 #define PLAYER_SPEED 0x0200
+#define PLAYER_BULLETSPEED 0x0300
 #define TELEPORT_SPEED 0x1C
 #define DEATH_DELAY 100 // Delay after dying before the game over screen shows, in frames.
 #define NORMAL_DISTANCE 160 // Distance that the player usually sits at.
@@ -85,7 +86,7 @@ void updatePlayer() {
             }
 
             if (joypad_pressed & PAD_A) {
-                fireBullet(B_PLAYER, playerAngle >> 8, playerDist, -0x0300);
+                fireBullet(B_PLAYER, playerAngle >> 8, playerDist, -PLAYER_BULLETSPEED);
             } else if (joypad_pressed & PAD_B) {
                 playerState = STATE_TELEPORTING1; // initiate teleport
                 // set tiles
@@ -165,16 +166,8 @@ void updatePlayer() {
             explodeSpeed -= EXPLODESPEED_DECREASE;
         }
         for (uint8_t i = 0; i < 4; i++) {
-            if (i == 1 || i == 3) {
-                exSprites[i].y -= explodeSpeed;
-            } else {
-                exSprites[i].y += explodeSpeed;
-            }
-            if (i == 2 || i == 3) {
-                exSprites[i].x -= explodeSpeed;
-            } else {
-                exSprites[i].x += explodeSpeed;
-            }
+            exSprites[i].y += (i == 1 || i == 3) ? -explodeSpeed : explodeSpeed;
+            exSprites[i].x += (i == 2 || i == 3) ? -explodeSpeed : explodeSpeed;
             shadow_oam[i].y = exSprites[i].y >> 8;
             shadow_oam[i].x = exSprites[i].x >> 8;
         }
@@ -183,7 +176,6 @@ void updatePlayer() {
             rWX = 7;
             rWY = 144 - (8 * 9);
             rLCDC = rLCDC & ~LCDC_OBJON; // disable sprites
-            uint16_t vAddr = 0x9C00;
             vram_memset(0x9C00, 0x36, 32 * 9); // clear window area
             copyStringVRAM(GameOverString, (uint8_t*)0x9C20);
             copyStringVRAM(ScoreString, (uint8_t*)0x9C61);
